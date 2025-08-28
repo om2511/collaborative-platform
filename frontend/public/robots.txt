@@ -1,0 +1,8 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Disallow: /admin
+Disallow: /api
+Allow: /
+
+# CollabAI - AI-Powered Collaboration Platform
+Sitemap: https://your-domain.com/sitemap.xml

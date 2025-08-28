@@ -1,0 +1,839 @@
+openapi: 3.0.0
+info:
+  title: Collaborative Platform API
+  description: API for Collaborative AI-Powered Ideation & Project Management Platform
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+servers:
+  - url: http://localhost:5001/api
+    description: Development server
+  - url: https://api.collaborativeplatform.com/api
+    description: Production server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "614c1b4d2f3a4c001f5e6789"
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        role:
+          type: string
+          enum: [user, admin, manager]
+          example: "user"
+        isActive:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Project:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "614c1b4d2f3a4c001f5e6789"
+        name:
+          type: string
+          example: "Website Redesign"
+        description:
+          type: string
+          example: "Complete redesign of company website"
+        owner:
+          type: string
+          example: "614c1b4d2f3a4c001f5e6789"
+        team:
+          type: array
+          items:
+            type: object
+            properties:
+              user:
+                type: string
+              role:
+                type: string
+                enum: [owner, manager, member, viewer]
+        status:
+          type: string
+          enum: [active, completed, archived]
+          example: "active"
+        progress:
+          type: number
+          example: 65
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Task:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "614c1b4d2f3a4c001f5e6789"
+        title:
+          type: string
+          example: "Design homepage mockup"
+        description:
+          type: string
+          example: "Create wireframes and mockups for the new homepage"
+        project:
+          type: string
+          example: "614c1b4d2f3a4c001f5e6789"
+        assignee:
+          type: string
+          example: "614c1b4d2f3a4c001f5e6789"
+        status:
+          type: string
+          enum: [todo, in_progress, done]
+          example: "in_progress"
+        priority:
+          type: string
+          enum: [low, medium, high]
+          example: "medium"
+        dueDate:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Analytics:
+      type: object
+      properties:
+        projectInfo:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            description:
+              type: string
+            progress:
+              type: number
+        taskStats:
+          type: object
+          properties:
+            byStatus:
+              type: array
+              items:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  count:
+                    type: number
+                  tasks:
+                    type: array
+            byPriority:
+              type: array
+              items:
+                type: object
+            totalTasks:
+              type: number
+            completedTasks:
+              type: number
+            completionRate:
+              type: number
+        teamStats:
+          type: array
+          items:
+            type: object
+            properties:
+              user:
+                $ref: '#/components/schemas/User'
+              completed:
+                type: number
+              inProgress:
+                type: number
+              total:
+                type: number
+        insights:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum: [success, warning, info, error]
+              category:
+                type: string
+              title:
+                type: string
+              message:
+                type: string
+              priority:
+                type: string
+                enum: [low, medium, high]
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Resource not found"
+        errors:
+          type: array
+          items:
+            type: object
+
+security:
+  - bearerAuth: []
+
+paths:
+  # Authentication
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name:
+                  type: string
+                  example: "John Doe"
+                email:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+                password:
+                  type: string
+                  minLength: 6
+                  example: "password123"
+      responses:
+        201:
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                      token:
+                        type: string
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+                password:
+                  type: string
+                  example: "password123"
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                      token:
+                        type: string
+        401:
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Analytics
+  /analytics/dashboard:
+    get:
+      tags:
+        - Analytics
+      summary: Get dashboard analytics
+      responses:
+        200:
+          description: Dashboard analytics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      userTaskStats:
+                        type: array
+                      recentTasks:
+                        type: array
+                      recentIdeas:
+                        type: array
+                      upcomingDeadlines:
+                        type: array
+                      projectCount:
+                        type: number
+                      activeProjects:
+                        type: number
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /analytics/projects/{projectId}:
+    get:
+      tags:
+        - Analytics
+      summary: Get project analytics
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{24}$'
+          example: "614c1b4d2f3a4c001f5e6789"
+      responses:
+        200:
+          description: Project analytics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Analytics'
+        400:
+          description: Invalid project ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        403:
+          description: Access denied - not a project member
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /analytics/team/{teamId}:
+    get:
+      tags:
+        - Analytics
+      summary: Get team analytics
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{24}$'
+          example: "614c1b4d2f3a4c001f5e6789"
+      responses:
+        200:
+          description: Team analytics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      teamPerformance:
+                        type: array
+                      projectStats:
+                        type: array
+                      totalProjects:
+                        type: number
+                      activeProjects:
+                        type: number
+        400:
+          description: Invalid team ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Admin
+  /admin/users:
+    get:
+      tags:
+        - Admin
+      summary: Get all users (Admin only)
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [all, active, inactive]
+            default: all
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [all, user, admin, manager]
+            default: all
+        - name: sort
+          in: query
+          schema:
+            type: string
+            default: "-createdAt"
+      responses:
+        200:
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      users:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/User'
+                            - type: object
+                              properties:
+                                stats:
+                                  type: object
+                                  properties:
+                                    projects:
+                                      type: number
+                                    tasks:
+                                      type: number
+                                    ideas:
+                                      type: number
+                      pagination:
+                        type: object
+                        properties:
+                          current:
+                            type: number
+                          pages:
+                            type: number
+                          total:
+                            type: number
+                          hasNext:
+                            type: boolean
+                          hasPrev:
+                            type: boolean
+        403:
+          description: Access denied - Admin role required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/users/{id}:
+    get:
+      tags:
+        - Admin
+      summary: Get user by ID with detailed stats (Admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{24}$'
+      responses:
+        200:
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                      stats:
+                        type: object
+                      recentActivity:
+                        type: object
+        400:
+          description: Invalid user ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/users/{id}/status:
+    patch:
+      tags:
+        - Admin
+      summary: Update user status (Admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{24}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [isActive]
+              properties:
+                isActive:
+                  type: boolean
+                reason:
+                  type: string
+                  maxLength: 500
+      responses:
+        200:
+          description: User status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/User'
+        400:
+          description: Validation error or self-modification attempt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/users/{id}/role:
+    patch:
+      tags:
+        - Admin
+      summary: Update user role (Admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{24}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role:
+                  type: string
+                  enum: [user, admin, manager]
+      responses:
+        200:
+          description: User role updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/User'
+        400:
+          description: Validation error or self-modification attempt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - Admin
+      summary: Delete user (soft delete) (Admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{24}$'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transferProjectsTo:
+                  type: string
+                  pattern: '^[0-9a-fA-F]{24}$'
+      responses:
+        200:
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+        400:
+          description: Self-deletion attempt or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/analytics:
+    get:
+      tags:
+        - Admin
+      summary: Get system analytics (Admin only)
+      responses:
+        200:
+          description: System analytics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      overview:
+                        type: object
+                        properties:
+                          totalUsers:
+                            type: number
+                          activeUsers:
+                            type: number
+                          totalProjects:
+                            type: number
+                          activeProjects:
+                            type: number
+                          totalTasks:
+                            type: number
+                          completedTasks:
+                            type: number
+                          totalIdeas:
+                            type: number
+                          userGrowthRate:
+                            type: number
+                          projectGrowthRate:
+                            type: number
+                          taskCompletionRate:
+                            type: number
+                      distributions:
+                        type: object
+                      growth:
+                        type: object
+                      recentActivity:
+                        type: array
+
+  /admin/logs:
+    get:
+      tags:
+        - Admin
+      summary: Get system logs (Admin only)
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [all, user_activity, system, error]
+            default: all
+      responses:
+        200:
+          description: System logs retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      logs:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            type:
+                              type: string
+                            action:
+                              type: string
+                            user:
+                              type: object
+                            details:
+                              type: object
+                            timestamp:
+                              type: string
+                              format: date-time
+                      pagination:
+                        type: object
+
+  # Health Check
+  /health:
+    get:
+      tags:
+        - System
+      summary: Health check endpoint
+      security: []
+      responses:
+        200:
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+                  environment:
+                    type: string
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Analytics
+    description: Analytics and insights endpoints
+  - name: Admin
+    description: Administrative operations (Admin only)
+  - name: System
+    description: System utilities and health checks

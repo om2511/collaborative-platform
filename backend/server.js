@@ -1,0 +1,317 @@
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const dotenv = require('dotenv');
+const { createServer } = require('http');
+const { Server } = require('socket.io');
+
+// Load environment variables
+dotenv.config();
+
+// Database connection
+const connectDB = require('./config/database');
+const config = require('./config/config');
+
+// Route imports
+const authRoutes = require('./routes/auth');
+const projectRoutes = require('./routes/projects');
+const taskRoutes = require('./routes/tasks');
+const ideaRoutes = require('./routes/ideas');
+const documentRoutes = require('./routes/documents');
+const commentRoutes = require('./routes/comments');
+const whiteboardRoutes = require('./routes/whiteboards');
+const chatRoutes = require('./routes/chat');
+const analyticsRoutes = require('./routes/analytics');
+const adminRoutes = require('./routes/admin');
+
+// Connect to database in the background, don't wait for it
+connectDB().catch(err => console.error('Initial DB connection failed:', err.message));
+
+const app = express();
+const server = createServer(app);
+
+// Socket.IO setup
+const io = new Server(server, {
+  cors: {
+    origin: process.env.NODE_ENV === 'production' ? 
+      config.corsOrigin || config.allowedOrigins || ['http://localhost:3000'] :
+      true, // Allow all origins in development
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
+
+// Security middleware
+app.use(helmet());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: {
+    success: false,
+    message: 'Too many requests from this IP, please try again later.'
+  }
+});
+app.use('/api/', limiter);
+
+// CORS - Explicit configuration for development
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // List of allowed origins
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:5001', 
+      'http://localhost:5173',
+      'http://localhost:3001'
+    ];
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+
+// Manual CORS headers as backup
+app.use((req, res, next) => {
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5001',
+    'http://localhost:5173', 
+    'http://localhost:3001'
+  ];
+  
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+  }
+  
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+  } else {
+    next();
+  }
+});
+
+// CORS middleware
+
+// Body parser middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Socket.IO middleware for authentication
+io.use(async (socket, next) => {
+  try {
+    const token = socket.handshake.auth.token;
+    if (token) {
+      const jwt = require('jsonwebtoken');
+      const User = require('./models/User');
+      
+      const decoded = jwt.verify(token, config.jwtSecret);
+      const user = await User.findById(decoded.id).select('-password');
+      
+      if (user) {
+        socket.user = user;
+        return next();
+      }
+    }
+    next(new Error('Authentication error'));
+  } catch (error) {
+    next(new Error('Authentication error'));
+  }
+});
+
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+  
+  // Join user to their personal room
+  socket.join(`user_${socket.user._id}`);
+  
+  // Handle project room joining
+  socket.on('join_project', (projectId) => {
+    socket.join(`project_${projectId}`);
+    socket.to(`project_${projectId}`).emit('user_joined', {
+      user: {
+        id: socket.user._id,
+        name: socket.user.name,
+        avatar: socket.user.avatar
+      }
+    });
+  });
+
+  // Handle leaving project room
+  socket.on('leave_project', (projectId) => {
+    socket.leave(`project_${projectId}`);
+    socket.to(`project_${projectId}`).emit('user_left', {
+      user: {
+        id: socket.user._id,
+        name: socket.user.name
+      }
+    });
+  });
+
+  // Handle whiteboard updates
+  socket.on('whiteboard_update', (data) => {
+    const { projectId, action, object } = data;
+    socket.to(`project_${projectId}`).emit('whiteboard_update', {
+      action,
+      object,
+      user: {
+        id: socket.user._id,
+        name: socket.user.name
+      }
+    });
+  });
+
+  // Handle cursor movement
+  socket.on('cursor_move', (data) => {
+    const { projectId, x, y } = data;
+    socket.to(`project_${projectId}`).emit('cursor_move', {
+      userId: socket.user._id,
+      userName: socket.user.name,
+      x,
+      y
+    });
+  });
+
+  // Handle chat messages
+  socket.on('send_message', (data) => {
+    const { projectId, content, type, messageId, senderId } = data;
+    const messageData = {
+      id: messageId || Date.now(),
+      content,
+      type: type || 'text',
+      sender: {
+        id: socket.user._id,
+        name: socket.user.name,
+        avatar: socket.user.avatar
+      },
+      timestamp: new Date()
+    };
+    
+    // Broadcast to project room EXCEPT the sender
+    socket.to(`project_${projectId}`).emit('new_message', messageData);
+  });
+
+  // Handle task updates
+  socket.on('task_update', (data) => {
+    const { projectId, taskId, updates } = data;
+    socket.to(`project_${projectId}`).emit('task_updated', {
+      taskId,
+      updates,
+      updatedBy: {
+        id: socket.user._id,
+        name: socket.user.name
+      }
+    });
+  });
+
+  // Handle typing indicators
+  socket.on('typing_start', (data) => {
+    const { projectId, chatType } = data;
+    socket.to(`project_${projectId}`).emit('user_typing', {
+      userId: socket.user._id,
+      userName: socket.user.name,
+      chatType
+    });
+  });
+
+  socket.on('typing_stop', (data) => {
+    const { projectId, chatType } = data;
+    socket.to(`project_${projectId}`).emit('user_stopped_typing', {
+      userId: socket.user._id,
+      chatType
+    });
+  });
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+  });
+
+  // Error handling
+  socket.on('error', (error) => {
+    console.error('Socket error:', error);
+  });
+});
+
+// Make io accessible to routes
+app.set('socketio', io);
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/ideas', ideaRoutes);
+app.use('/api/documents', documentRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/whiteboards', whiteboardRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/admin', adminRoutes);
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err.stack);
+  
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  });
+});
+
+// Start server
+const PORT = config.port;
+server.listen(PORT, () => {
+  console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err, promise) => {
+  console.log('Unhandled Rejection:', err.message);
+  server.close(() => {
+    process.exit(1);
+  });
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.log('Uncaught Exception:', err.message);
+  process.exit(1);
+});
+
+module.exports = app;
