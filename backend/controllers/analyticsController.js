@@ -416,7 +416,7 @@ const getDashboardAnalytics = async (req, res) => {
     if (Idea) {
       try {
         recentIdeas = await Idea.find({
-          createdBy: userId
+          creator: userId
         })
         .populate('project', 'name')
         .sort({ createdAt: -1 })
@@ -546,7 +546,7 @@ const getRecentActivity = async (req, res) => {
           project: { $in: projectIds },
           createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
         })
-        .populate('createdBy', 'name')
+        .populate('creator', 'name')
         .populate('project', 'title')
         .sort({ createdAt: -1 })
         .limit(3);
@@ -556,7 +556,7 @@ const getRecentActivity = async (req, res) => {
             _id: `idea_${idea._id}`,
             type: 'idea_created',
             message: `New idea "${idea.title}" was submitted`,
-            user: idea.createdBy,
+            user: idea.creator,
             createdAt: idea.createdAt,
             project: idea.project
           });
