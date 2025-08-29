@@ -667,79 +667,107 @@ const CollaborativeWhiteboard = ({ projectId, whiteboardId, isReadOnly = false }
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <LoadingSpinner size="xl" />
+      <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-8 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-purple-100/50 to-transparent rounded-full -translate-y-10 translate-x-10"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-blue-100/50 to-transparent rounded-full translate-y-8 -translate-x-8"></div>
+        
+        <div className="flex flex-col items-center justify-center h-96 relative">
+          <div className="mb-6 p-4 bg-white/50 backdrop-blur-sm rounded-2xl border border-white/30 shadow-lg">
+            <PaintBrushIcon className="h-12 w-12 text-indigo-600" />
+          </div>
+          <LoadingSpinner size="xl" className="mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading Whiteboard</h3>
+          <p className="text-sm text-gray-600 text-center max-w-md">
+            Setting up your collaborative drawing canvas...
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 overflow-hidden hover:shadow-2xl transition-all duration-300 relative">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-purple-100/50 to-transparent rounded-full -translate-y-10 translate-x-10"></div>
+      <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-blue-100/50 to-transparent rounded-full translate-y-8 -translate-x-8"></div>
+      
       {/* Toolbar */}
       {!isReadOnly && (
-        <div className="border-b border-gray-200 p-4">
-          <div className="flex flex-wrap items-center gap-4">
+        <div className="border-b border-white/30 p-6 backdrop-blur-sm relative">
+          <div className="flex flex-wrap items-center gap-6">
             {/* Tools */}
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-gray-700">Tools:</span>
-              {[
-                { id: 'pen', icon: PencilIcon, label: 'Pen' },
-                { id: 'rectangle', icon: Square3Stack3DIcon, label: 'Rectangle' },
-                { id: 'circle', icon: CircleStackIcon, label: 'Circle' },
-                { id: 'text', icon: CursorArrowRaysIcon, label: 'Text' },
-                { id: 'sticky_note', icon: DocumentIcon, label: 'Sticky Note' }
-              ].map((toolItem) => {
-                const Icon = toolItem.icon;
-                return (
-                  <button
-                    key={toolItem.id}
-                    onClick={() => setTool(toolItem.id)}
-                    className={`p-2 rounded-md transition-colors ${
-                      tool === toolItem.id
-                        ? 'bg-primary-100 text-primary-700'
-                        : 'text-gray-500 hover:bg-gray-100'
-                    }`}
-                    title={toolItem.label}
-                  >
-                    <Icon className="h-5 w-5" />
-                  </button>
-                );
-              })}
+            <div className="flex items-center space-x-3">
+              <span className="text-sm font-semibold text-gray-700 flex items-center">
+                <PaintBrushIcon className="h-4 w-4 mr-2 text-indigo-600" />
+                Tools:
+              </span>
+              <div className="flex space-x-2">
+                {[
+                  { id: 'pen', icon: PencilIcon, label: 'Pen' },
+                  { id: 'rectangle', icon: Square3Stack3DIcon, label: 'Rectangle' },
+                  { id: 'circle', icon: CircleStackIcon, label: 'Circle' },
+                  { id: 'text', icon: CursorArrowRaysIcon, label: 'Text' },
+                  { id: 'sticky_note', icon: DocumentIcon, label: 'Sticky Note' }
+                ].map((toolItem) => {
+                  const Icon = toolItem.icon;
+                  return (
+                    <button
+                      key={toolItem.id}
+                      onClick={() => setTool(toolItem.id)}
+                      className={`p-3 rounded-xl transition-all duration-200 backdrop-blur-sm border shadow-sm ${
+                        tool === toolItem.id
+                          ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-indigo-300 shadow-lg shadow-indigo-500/25'
+                          : 'text-gray-600 hover:text-gray-800 bg-white/50 hover:bg-white/70 border-gray-200/50'
+                      }`}
+                      title={toolItem.label}
+                    >
+                      <Icon className="h-5 w-5" />
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Colors */}
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-gray-700">Color:</span>
-              <div className="flex space-x-1">
+            <div className="flex items-center space-x-3">
+              <span className="text-sm font-semibold text-gray-700">Color:</span>
+              <div className="flex space-x-2 p-2 bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-sm">
                 {colors.map((colorOption) => (
                   <button
                     key={colorOption}
                     onClick={() => setColor(colorOption)}
-                    className={`w-6 h-6 rounded-full border-2 ${
-                      color === colorOption ? 'border-gray-800' : 'border-gray-300'
+                    className={`w-8 h-8 rounded-full border-2 shadow-sm transition-all duration-200 hover:scale-110 ${
+                      color === colorOption ? 'border-gray-800 shadow-lg' : 'border-gray-300'
                     }`}
                     style={{ backgroundColor: colorOption }}
+                    title={`Color: ${colorOption}`}
                   />
                 ))}
               </div>
             </div>
 
             {/* Stroke Width */}
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-gray-700">Size:</span>
-              <input
-                type="range"
-                min="1"
-                max="20"
-                value={strokeWidth}
-                onChange={(e) => setStrokeWidth(parseInt(e.target.value))}
-                className="w-20"
-              />
-              <span className="text-sm text-gray-500">{strokeWidth}px</span>
+            <div className="flex items-center space-x-3">
+              <span className="text-sm font-semibold text-gray-700">Size:</span>
+              <div className="flex items-center space-x-3 p-3 bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-sm">
+                <input
+                  type="range"
+                  min="1"
+                  max="20"
+                  value={strokeWidth}
+                  onChange={(e) => setStrokeWidth(parseInt(e.target.value))}
+                  className="w-24 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  style={{
+                    background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${(strokeWidth-1)/19*100}%, #e5e7eb ${(strokeWidth-1)/19*100}%, #e5e7eb 100%)`
+                  }}
+                />
+                <span className="text-sm font-medium text-gray-600 bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full border border-gray-200/50 min-w-[45px] text-center">{strokeWidth}px</span>
+              </div>
             </div>
 
             {/* Actions */}
-            <div className="flex items-center space-x-2 ml-auto">
+            <div className="flex items-center space-x-3 ml-auto">
               {selectedObjectId && (
                 <Button
                   variant="danger"
@@ -747,9 +775,9 @@ const CollaborativeWhiteboard = ({ projectId, whiteboardId, isReadOnly = false }
                   icon={TrashIcon}
                   iconPosition="left"
                   onClick={() => deleteObject(selectedObjectId)}
-                  className="text-red-600 border-red-300 hover:bg-red-50"
+                  className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0 shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-200"
                 >
-                  Delete
+                  Delete Selected
                 </Button>
               )}
               
@@ -759,9 +787,9 @@ const CollaborativeWhiteboard = ({ projectId, whiteboardId, isReadOnly = false }
                 icon={TrashIcon}
                 iconPosition="left"
                 onClick={clearCanvas}
-                className="text-gray-600"
+                className="bg-white/50 border-gray-200/50 backdrop-blur-sm hover:bg-white/70 text-gray-700 hover:text-gray-900 shadow-sm transition-all duration-200"
               >
-                Clear
+                Clear All
               </Button>
             </div>
           </div>
@@ -769,94 +797,138 @@ const CollaborativeWhiteboard = ({ projectId, whiteboardId, isReadOnly = false }
       )}
 
       {/* Canvas */}
-      <div className="relative">
-        <Stage
-          width={window.innerWidth - 100}
-          height={600}
-          onMouseDown={handleMouseDown}
-          onMousemove={handleMouseMove}
-          onMouseup={handleMouseUp}
-          ref={stageRef}
-        >
-          <Layer>
-            {/* Render all objects - deduplicate before rendering */}
-            {deduplicateObjects(objects).map((obj, index) => renderObject(obj, index))}
+      <div className="relative bg-gradient-to-br from-gray-50/50 to-white/30 backdrop-blur-sm">
+        <div className="relative border border-white/30 rounded-xl m-4 overflow-hidden shadow-inner bg-white/30 backdrop-blur-sm">
+          <Stage
+            width={window.innerWidth - 140}
+            height={600}
+            onMouseDown={handleMouseDown}
+            onMousemove={handleMouseMove}
+            onMouseup={handleMouseUp}
+            ref={stageRef}
+            className="rounded-xl"
+          >
+            <Layer>
+              {/* Render all objects - deduplicate before rendering */}
+              {deduplicateObjects(objects).map((obj, index) => renderObject(obj, index))}
 
-            {/* Render current drawing path */}
-            {isDrawing && tool === 'pen' && currentPath.length > 2 && (
-              <Line
-                key="temp-drawing-path"
-                points={currentPath}
-                stroke={color}
-                strokeWidth={strokeWidth}
-                tension={0.5}
-                lineCap="round"
-                lineJoin="round"
-                globalCompositeOperation="source-over"
-              />
-            )}
+              {/* Render current drawing path */}
+              {isDrawing && tool === 'pen' && currentPath.length > 2 && (
+                <Line
+                  key="temp-drawing-path"
+                  points={currentPath}
+                  stroke={color}
+                  strokeWidth={strokeWidth}
+                  tension={0.5}
+                  lineCap="round"
+                  lineJoin="round"
+                  globalCompositeOperation="source-over"
+                  opacity={0.8}
+                />
+              )}
 
-            {/* Render collaborator cursors */}
-            {collaborators.map((collaborator, index) => (
-              <Group key={collaborator.userId || collaborator.user?._id || `collaborator-${index}`}>
-                <Circle
-                  x={collaborator.cursor.x}
-                  y={collaborator.cursor.y}
-                  radius={4}
-                  fill={collaborator.cursor.color || '#3b82f6'}
-                />
-                <Text
-                  x={collaborator.cursor.x + 10}
-                  y={collaborator.cursor.y - 20}
-                  text={collaborator.userName || collaborator.user?.name || 'Anonymous'}
-                  fontSize={12}
-                  fill="#333"
-                  backgroundColor="white"
-                />
-              </Group>
-            ))}
-          </Layer>
-        </Stage>
+              {/* Render collaborator cursors with enhanced styling */}
+              {collaborators.map((collaborator, index) => (
+                <Group key={collaborator.userId || collaborator.user?._id || `collaborator-${index}`}>
+                  <Circle
+                    x={collaborator.cursor.x}
+                    y={collaborator.cursor.y}
+                    radius={6}
+                    fill={collaborator.cursor.color || '#6366f1'}
+                    stroke="#ffffff"
+                    strokeWidth={2}
+                    shadowBlur={8}
+                    shadowColor={collaborator.cursor.color || '#6366f1'}
+                    shadowOpacity={0.3}
+                  />
+                  <Text
+                    x={collaborator.cursor.x + 12}
+                    y={collaborator.cursor.y - 25}
+                    text={collaborator.userName || collaborator.user?.name || 'Anonymous'}
+                    fontSize={12}
+                    fill="#1f2937"
+                    fontStyle="bold"
+                    padding={4}
+                    cornerRadius={6}
+                    fillAfterStrokeEnabled={true}
+                    strokeWidth={0}
+                  />
+                </Group>
+              ))}
+            </Layer>
+          </Stage>
+        </div>
 
         {/* Status Indicators */}
-        <div className="absolute top-4 right-4 space-y-2">
+        <div className="absolute top-6 right-6 space-y-3 z-10">
           {/* Offline Indicator */}
           {isOffline && (
-            <div className="bg-yellow-100 border border-yellow-300 text-yellow-800 px-3 py-2 rounded-lg shadow-sm">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-                <span className="text-xs font-medium">Working Offline - Drawing Locally</span>
+            <div className="bg-yellow-100/80 backdrop-blur-xl border border-yellow-200/50 text-yellow-800 px-4 py-3 rounded-xl shadow-lg">
+              <div className="flex items-center space-x-3">
+                <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse shadow-sm"></div>
+                <span className="text-sm font-semibold">Working Offline</span>
               </div>
+              <p className="text-xs text-yellow-700 mt-1">Drawing saved locally</p>
             </div>
           )}
           
           {/* Online Indicator */}
           {!isOffline && hasTriedServer && (
-            <div className="bg-green-100 border border-green-300 text-green-800 px-3 py-2 rounded-lg shadow-sm">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-xs font-medium">Connected to Server</span>
+            <div className="bg-green-100/80 backdrop-blur-xl border border-green-200/50 text-green-800 px-4 py-3 rounded-xl shadow-lg">
+              <div className="flex items-center space-x-3">
+                <div className="w-3 h-3 bg-green-500 rounded-full shadow-sm"></div>
+                <span className="text-sm font-semibold">Connected</span>
               </div>
+              <p className="text-xs text-green-700 mt-1">Real-time collaboration active</p>
             </div>
           )}
           
           {/* Online Collaborators */}
           {collaborators.length > 0 && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3">
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Online ({collaborators.length})</h4>
-              <div className="space-y-1">
+            <div className="bg-white/80 backdrop-blur-xl rounded-xl shadow-lg border border-white/20 p-4 min-w-[180px]">
+              <div className="flex items-center space-x-2 mb-3">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <h4 className="text-sm font-semibold text-gray-900">
+                  Online ({collaborators.length})
+                </h4>
+              </div>
+              <div className="space-y-2">
                 {collaborators.map((collaborator, index) => (
-                  <div key={collaborator.userId || collaborator.user?._id || `collaborator-list-${index}`} className="flex items-center space-x-2">
+                  <div key={collaborator.userId || collaborator.user?._id || `collaborator-list-${index}`} className="flex items-center space-x-3 p-2 bg-white/50 backdrop-blur-sm rounded-lg border border-white/30 shadow-sm">
                     <div
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: collaborator.cursor.color || '#3b82f6' }}
+                      className="w-4 h-4 rounded-full shadow-sm border-2 border-white"
+                      style={{ backgroundColor: collaborator.cursor.color || '#6366f1' }}
                     />
-                    <span className="text-xs text-gray-600">{collaborator.userName || collaborator.user?.name || 'Anonymous'}</span>
+                    <span className="text-sm font-medium text-gray-700 truncate">
+                      {collaborator.userName || collaborator.user?.name || 'Anonymous'}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
           )}
+
+          {/* Drawing Stats */}
+          <div className="bg-white/80 backdrop-blur-xl rounded-xl shadow-lg border border-white/20 p-4">
+            <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center">
+              <PaintBrushIcon className="h-4 w-4 mr-2 text-indigo-600" />
+              Canvas Stats
+            </h4>
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs">
+                <span className="text-gray-600">Objects:</span>
+                <span className="font-medium text-gray-900">{objects.length}</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-gray-600">Tool:</span>
+                <span className="font-medium text-gray-900 capitalize">{tool.replace('_', ' ')}</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-gray-600">Size:</span>
+                <span className="font-medium text-gray-900">{strokeWidth}px</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -272,16 +272,16 @@ const Ideas = () => {
       )}
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
+      <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
           {/* Search */}
           <div className="sm:col-span-2 lg:col-span-2">
             <div className="relative">
-              <MagnifyingGlassIcon className="h-4 w-4 sm:h-5 sm:w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search ideas..."
-                className="pl-8 sm:pl-10 w-full px-3 py-2 text-sm sm:text-base text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                className="pl-10 w-full px-4 py-3 text-gray-900 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 bg-white/50 backdrop-blur-sm"
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
               />
@@ -291,7 +291,7 @@ const Ideas = () => {
           {/* Status */}
           <div>
             <select
-              className="w-full px-3 py-2 text-sm sm:text-base text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-4 py-3 text-gray-900 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white/50 backdrop-blur-sm transition-all duration-200"
               value={filters.status}
               onChange={(e) => handleFilterChange('status', e.target.value)}
             >
@@ -308,7 +308,7 @@ const Ideas = () => {
           {/* Priority */}
           <div>
             <select
-              className="w-full px-3 py-2 text-sm sm:text-base text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-4 py-3 text-gray-900 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white/50 backdrop-blur-sm transition-all duration-200"
               value={filters.priority}
               onChange={(e) => handleFilterChange('priority', e.target.value)}
             >
@@ -322,7 +322,7 @@ const Ideas = () => {
           {/* Category */}
           <div>
             <select
-              className="w-full px-3 py-2 text-sm sm:text-base text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-4 py-3 text-gray-900 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white/50 backdrop-blur-sm transition-all duration-200"
               value={filters.category}
               onChange={(e) => handleFilterChange('category', e.target.value)}
             >
@@ -340,7 +340,7 @@ const Ideas = () => {
           {/* Sort */}
           <div>
             <select
-              className="w-full px-3 py-2 text-sm sm:text-base text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-4 py-3 text-gray-900 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white/50 backdrop-blur-sm transition-all duration-200"
               value={filters.sort}
               onChange={(e) => handleFilterChange('sort', e.target.value)}
             >
@@ -354,13 +354,13 @@ const Ideas = () => {
 
         {/* Filter Summary */}
         {(filters.search || filters.status || filters.priority || filters.category) && (
-          <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
-            <span className="text-xs sm:text-sm text-gray-500">
+          <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-white/30 backdrop-blur-sm rounded-xl border border-white/20">
+            <span className="text-sm text-gray-600 font-medium">
               {filteredIdeas.length} of {ideas.length} ideas
             </span>
             <Button 
               variant="outline" 
-              className="text-gray-900 hover:text-white text-xs sm:text-sm" 
+              className="bg-white/50 border-white/50 backdrop-blur-sm hover:bg-white/70 text-gray-700 hover:text-gray-900 transition-all duration-200" 
               size="sm" 
               onClick={clearFilters}
             >
@@ -372,32 +372,36 @@ const Ideas = () => {
 
       {/* Ideas Grid */}
       {filteredIdeas.length === 0 ? (
-        <div className="text-center py-8 sm:py-12 px-4">
-          <LightBulbIcon className="h-12 w-12 sm:h-16 sm:w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
-            {ideas.length === 0 ? 'No ideas yet' : 'No ideas match your filters'}
-          </h3>
-          <p className="text-sm sm:text-base text-gray-500 mb-4 sm:mb-6 max-w-md mx-auto">
-            {ideas.length === 0 
-              ? (projectId 
-                  ? 'Start brainstorming with AI or add your first idea'
-                  : 'Join a project to start creating ideas'
-                )
-              : 'Try adjusting your search criteria'
-            }
-          </p>
-          {ideas.length === 0 && projectId && (
-            <Button
-              variant="primary"
-              onClick={() => setShowCreateModal(true)}
-              className="w-full sm:w-auto"
-            >
-              Add First Idea
-            </Button>
-          )}
+        <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-12">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100/80 backdrop-blur-sm rounded-2xl mb-6">
+              <LightBulbIcon className="h-10 w-10 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              {ideas.length === 0 ? 'No ideas yet' : 'No ideas match your filters'}
+            </h3>
+            <p className="text-gray-500 mb-6 max-w-md mx-auto">
+              {ideas.length === 0 
+                ? (projectId 
+                    ? 'Start brainstorming with AI or add your first idea'
+                    : 'Join a project to start creating ideas'
+                  )
+                : 'Try adjusting your search criteria'
+              }
+            </p>
+            {ideas.length === 0 && projectId && (
+              <Button
+                variant="primary"
+                onClick={() => setShowCreateModal(true)}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 border-0"
+              >
+                Add First Idea
+              </Button>
+            )}
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {filteredIdeas.map((idea, index) => (
             <IdeaCard
               key={`idea-${idea._id || idea.id || index}`}

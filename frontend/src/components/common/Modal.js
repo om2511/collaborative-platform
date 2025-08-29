@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
 const Modal = ({ 
@@ -11,8 +12,8 @@ const Modal = ({
 }) => {
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] overflow-y-auto">
       <div className="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         {/* Background overlay */}
         <div 
@@ -21,7 +22,7 @@ const Modal = ({
         ></div>
 
         {/* Modal panel */}
-        <div className={`inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:align-middle ${maxWidth}`}>
+        <div className={`inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:align-middle ${maxWidth} relative z-10`}>
           {/* Header */}
           {(title || showCloseButton) && (
             <div className="border-b border-gray-200 px-6 py-4">
@@ -42,13 +43,16 @@ const Modal = ({
           )}
 
           {/* Content */}
-          <div className="px-6 py-4">
+          <div className="px-6 py-4 max-h-[80vh] overflow-y-auto">
             {children}
           </div>
         </div>
       </div>
     </div>
   );
+
+  // Render modal at document root level using React Portal
+  return createPortal(modalContent, document.body);
 };
 
 export default Modal;

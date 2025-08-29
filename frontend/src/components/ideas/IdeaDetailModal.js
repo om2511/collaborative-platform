@@ -126,64 +126,70 @@ const IdeaDetailModal = ({ isOpen, onClose, idea, onIdeaUpdate }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg" title="Idea Details">
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <div className="flex items-center space-x-2 mb-3">
-            {idea.aiGenerated && (
-              <div className="flex items-center text-purple-600 bg-purple-100 px-2 py-1 rounded-full text-xs">
-                <SparklesIcon className="h-3 w-3 mr-1" />
-                AI Generated
+    <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-4xl" title="Idea Details">
+      <div className="relative">
+        <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-6 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-purple-100/50 to-transparent rounded-full -translate-y-8 translate-x-8"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-blue-100/50 to-transparent rounded-full translate-y-4 -translate-x-4"></div>
+        
+        <div className="space-y-6 relative">
+          {/* Header */}
+          <div>
+            <div className="flex items-center space-x-3 mb-4">
+              {idea.aiGenerated && (
+                <div className="flex items-center text-purple-700 bg-purple-100/80 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-medium border border-purple-200/50 shadow-sm">
+                  <SparklesIcon className="h-4 w-4 mr-1.5" />
+                  AI Generated
+                </div>
+              )}
+              <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-sm border shadow-sm ${getStatusColor(idea.status)}`}>
+                {idea.status.replace('_', ' ')}
+              </span>
+              <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-sm border shadow-sm ${getPriorityColor(idea.priority)}`}>
+                {idea.priority} priority
+              </span>
+            </div>
+            
+            <h2 className="text-2xl font-bold text-gray-900 mb-3 bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent">{idea.title}</h2>
+            <p className="text-gray-600 leading-relaxed">{idea.description}</p>
+          </div>
+
+          {/* Metadata */}
+          <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 space-y-3 border border-white/50 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-6 text-sm text-gray-600">
+                <div className="flex items-center space-x-2">
+                  <UserIcon className="h-4 w-4 text-blue-600" />
+                  <span className="font-medium">Created by {idea.creator?.name || 'Unknown'}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CalendarIcon className="h-4 w-4 text-blue-600" />
+                  <span className="font-medium">{formatDate(idea.createdAt)}</span>
+                </div>
+              </div>
+            </div>
+
+            {idea.updatedAt !== idea.createdAt && (
+              <div className="flex items-center space-x-2 text-sm text-gray-500 pt-2 border-t border-gray-200/50">
+                <ClockIcon className="h-4 w-4" />
+                <span>Last updated {formatDate(idea.updatedAt)}</span>
               </div>
             )}
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(idea.status)}`}>
-              {idea.status.replace('_', ' ')}
-            </span>
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(idea.priority)}`}>
-              {idea.priority} priority
-            </span>
           </div>
-          
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">{idea.title}</h2>
-          <p className="text-gray-600">{idea.description}</p>
-        </div>
-
-        {/* Metadata */}
-        <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4 text-sm text-gray-600">
-              <div className="flex items-center space-x-1">
-                <UserIcon className="h-4 w-4" />
-                <span>Created by {idea.creator?.name || 'Unknown'}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <CalendarIcon className="h-4 w-4" />
-                <span>{formatDate(idea.createdAt)}</span>
-              </div>
-            </div>
-          </div>
-
-          {idea.updatedAt !== idea.createdAt && (
-            <div className="flex items-center space-x-1 text-sm text-gray-500">
-              <ClockIcon className="h-4 w-4" />
-              <span>Last updated {formatDate(idea.updatedAt)}</span>
-            </div>
-          )}
-        </div>
 
         {/* Tags */}
         {idea.tags && idea.tags.length > 0 && (
           <div>
-            <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-              <TagIcon className="h-4 w-4 mr-1" />
+            <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+              <TagIcon className="h-4 w-4 mr-2 text-blue-600" />
               Tags
             </h4>
             <div className="flex flex-wrap gap-2">
               {idea.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-100 text-gray-700"
+                  className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-indigo-100/80 backdrop-blur-sm text-indigo-700 border border-indigo-200/50 shadow-sm"
                 >
                   {tag}
                 </span>
@@ -195,27 +201,30 @@ const IdeaDetailModal = ({ isOpen, onClose, idea, onIdeaUpdate }) => {
         {/* Implementation details for AI ideas */}
         {idea.aiGenerated && idea.implementation && (
           <div>
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Implementation Details</h4>
-            <div className="bg-purple-50 rounded-lg p-4 space-y-2">
+            <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+              <SparklesIcon className="h-4 w-4 mr-2 text-purple-600" />
+              Implementation Details
+            </h4>
+            <div className="bg-purple-50/80 backdrop-blur-sm rounded-xl p-4 space-y-3 border border-purple-200/50 shadow-sm">
               {idea.implementation.requiredResources?.length > 0 && (
                 <div>
-                  <span className="text-sm font-medium text-purple-700">Resources: </span>
-                  <ul className="text-sm text-purple-600 list-disc list-inside">
+                  <span className="text-sm font-semibold text-purple-700">Resources: </span>
+                  <ul className="text-sm text-purple-600 list-disc list-inside mt-1 space-y-1">
                     {idea.implementation.requiredResources.map((resource, index) => (
-                      <li key={index}>{resource}</li>
+                      <li key={index} className="leading-relaxed">{resource}</li>
                     ))}
                   </ul>
                 </div>
               )}
               {idea.implementation.timeline && (
                 <div>
-                  <span className="text-sm font-medium text-purple-700">Timeline: </span>
+                  <span className="text-sm font-semibold text-purple-700">Timeline: </span>
                   <span className="text-sm text-purple-600">{idea.implementation.timeline}</span>
                 </div>
               )}
               {idea.implementation.impact && (
                 <div>
-                  <span className="text-sm font-medium text-purple-700">Expected Impact: </span>
+                  <span className="text-sm font-semibold text-purple-700">Expected Impact: </span>
                   <span className="text-sm text-purple-600">{idea.implementation.impact}</span>
                 </div>
               )}
@@ -224,18 +233,21 @@ const IdeaDetailModal = ({ isOpen, onClose, idea, onIdeaUpdate }) => {
         )}
 
         {/* Voting */}
-        <div className="border-t border-gray-200 pt-4">
+        <div className="border-t border-gray-200/50 pt-4">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium text-gray-700">Community Feedback</h4>
+            <h4 className="text-sm font-semibold text-gray-700 flex items-center">
+              <HandThumbUpIcon className="h-4 w-4 mr-2 text-blue-600" />
+              Community Feedback
+            </h4>
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
                 <button
                   onClick={() => handleVote('upvote')}
                   disabled={isVoting}
-                  className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm transition-colors ${
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm transition-all duration-200 backdrop-blur-sm shadow-sm ${
                     userVote === 'upvote'
-                      ? 'bg-green-100 text-green-700'
-                      : 'text-gray-500 hover:bg-gray-100'
+                      ? 'bg-green-100/80 text-green-700 border border-green-200/50'
+                      : 'text-gray-500 hover:bg-gray-100/80 bg-white/50 border border-gray-200/50'
                   }`}
                 >
                   {userVote === 'upvote' ? (
@@ -243,16 +255,16 @@ const IdeaDetailModal = ({ isOpen, onClose, idea, onIdeaUpdate }) => {
                   ) : (
                     <HandThumbUpIcon className="h-4 w-4" />
                   )}
-                  <span>{idea.votes.upvotes.length}</span>
+                  <span className="font-medium">{idea.votes.upvotes.length}</span>
                 </button>
 
                 <button
                   onClick={() => handleVote('downvote')}
                   disabled={isVoting}
-                  className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm transition-colors ${
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm transition-all duration-200 backdrop-blur-sm shadow-sm ${
                     userVote === 'downvote'
-                      ? 'bg-red-100 text-red-700'
-                      : 'text-gray-500 hover:bg-gray-100'
+                      ? 'bg-red-100/80 text-red-700 border border-red-200/50'
+                      : 'text-gray-500 hover:bg-gray-100/80 bg-white/50 border border-gray-200/50'
                   }`}
                 >
                   {userVote === 'downvote' ? (
@@ -260,11 +272,11 @@ const IdeaDetailModal = ({ isOpen, onClose, idea, onIdeaUpdate }) => {
                   ) : (
                     <HandThumbDownIcon className="h-4 w-4" />
                   )}
-                  <span>{idea.votes.downvotes.length}</span>
+                  <span className="font-medium">{idea.votes.downvotes.length}</span>
                 </button>
               </div>
 
-              <div className="text-sm font-medium text-gray-700">
+              <div className="text-sm font-semibold text-gray-700 bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-200/50 shadow-sm">
                 Score: {totalVotes > 0 ? `+${totalVotes}` : totalVotes}
               </div>
             </div>
@@ -272,45 +284,45 @@ const IdeaDetailModal = ({ isOpen, onClose, idea, onIdeaUpdate }) => {
         </div>
 
         {/* Comments */}
-        <div className="border-t border-gray-200 pt-4">
+        <div className="border-t border-gray-200/50 pt-4">
           <div className="flex items-center space-x-2 mb-4">
-            <ChatBubbleLeftIcon className="h-5 w-5 text-gray-500" />
-            <h4 className="text-sm font-medium text-gray-700">
+            <ChatBubbleLeftIcon className="h-5 w-5 text-blue-600" />
+            <h4 className="text-sm font-semibold text-gray-700">
               Comments ({idea.comments.length})
             </h4>
           </div>
           
-          <div className="space-y-4 mb-4 max-h-64 overflow-y-auto">
+          <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
             {idea.comments.length === 0 ? (
-              <p className="text-gray-500 text-sm">No comments yet. Be the first to share your thoughts!</p>
+              <p className="text-gray-500 text-sm bg-gray-50/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 text-center">No comments yet. Be the first to share your thoughts!</p>
             ) : (
               idea.comments.map((comment, index) => (
-                <div key={index} className="flex space-x-3">
+                <div key={index} className="flex space-x-3 p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/50 shadow-sm">
                   <div className="flex-shrink-0">
                     {comment.user?.avatar ? (
                       <img 
                         src={comment.user.avatar} 
                         alt={comment.user?.name || 'User'}
-                        className="h-8 w-8 rounded-full object-cover"
+                        className="h-10 w-10 rounded-full object-cover ring-2 ring-white shadow-sm"
                       />
                     ) : (
-                      <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-                        <span className="text-sm text-gray-600">
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center ring-2 ring-white shadow-sm">
+                        <span className="text-sm font-medium text-white">
                           {comment.user?.name ? comment.user.name.charAt(0).toUpperCase() : '?'}
                         </span>
                       </div>
                     )}
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm font-medium text-gray-900">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <span className="text-sm font-semibold text-gray-900">
                         {comment.user?.name || 'Anonymous'}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-gray-500 bg-white/80 backdrop-blur-sm px-2 py-1 rounded-full">
                         {formatDate(comment.createdAt)}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-700 mt-1">{comment.text}</p>
+                    <p className="text-sm text-gray-700 leading-relaxed">{comment.text}</p>
                   </div>
                 </div>
               ))
@@ -322,7 +334,7 @@ const IdeaDetailModal = ({ isOpen, onClose, idea, onIdeaUpdate }) => {
             <div className="flex-1">
               <textarea
                 rows={3}
-                className="w-full h-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm resize-none"
+                className="w-full h-full px-4 py-3 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-none placeholder-gray-400 bg-white/50 backdrop-blur-sm transition-all duration-200 shadow-sm"
                 placeholder="Add a comment..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
@@ -335,10 +347,13 @@ const IdeaDetailModal = ({ isOpen, onClose, idea, onIdeaUpdate }) => {
               loading={isCommenting}
               size="sm"
               variant="primary"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 border-0 shadow-md hover:shadow-lg transition-all duration-200"
             >
               Comment
             </Button>
           </div>
+        </div>
+        </div>
         </div>
       </div>
     </Modal>

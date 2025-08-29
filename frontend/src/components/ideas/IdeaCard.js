@@ -164,43 +164,47 @@ const IdeaCard = ({ idea, onIdeaUpdate, onIdeaDelete }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
+    <>
+      <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-6 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 group relative overflow-hidden min-w-0">
+        {/* Background decoration */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 via-white/20 to-blue-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1 min-w-0 pr-2">
-          <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-2">
+      <div className="flex items-start justify-between mb-4 relative min-w-0 gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap items-center gap-2 mb-3">
             {idea.aiGenerated && (
-              <div className="flex items-center text-purple-600 bg-purple-100 px-2 py-1 rounded-full text-xs">
-                <SparklesIcon className="h-3 w-3 mr-1 flex-shrink-0" />
-                <span className="hidden sm:inline">AI Generated</span>
+              <div className="flex items-center text-purple-700 bg-purple-100/80 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-medium border border-purple-200/50 shadow-sm flex-shrink-0">
+                <SparklesIcon className="h-3 w-3 mr-1.5 flex-shrink-0" />
+                <span className="hidden sm:inline whitespace-nowrap">AI Generated</span>
                 <span className="sm:hidden">AI</span>
               </div>
             )}
-            <span className={`inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(idea.status)}`}>
+            <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-sm border shadow-sm flex-shrink-0 ${getStatusColor(idea.status)}`}>
               {idea.status.replace('_', ' ')}
             </span>
-            <span className={`inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(idea.priority)}`}>
-              <span className="hidden sm:inline">{idea.priority} priority</span>
+            <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-sm border shadow-sm flex-shrink-0 ${getPriorityColor(idea.priority)}`}>
+              <span className="hidden sm:inline whitespace-nowrap">{idea.priority} priority</span>
               <span className="sm:hidden">{idea.priority}</span>
             </span>
           </div>
           
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{idea.title}</h3>
-          <p className="text-gray-600 text-sm line-clamp-2 sm:line-clamp-3">{idea.description}</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-700 transition-colors duration-200 break-words">{idea.title}</h3>
+          <p className="text-gray-600 text-sm line-clamp-3 leading-relaxed break-words">{idea.description}</p>
           
           {/* Implementation details for AI ideas */}
           {idea.aiGenerated && idea.implementation && (
-            <div className="mt-3 space-y-2">
+            <div className="mt-4 p-3 bg-purple-50/80 backdrop-blur-sm rounded-xl border border-purple-200/50 space-y-2 min-w-0">
               {idea.implementation.requiredResources?.length > 0 && (
-                <div>
-                  <span className="text-xs font-medium text-gray-700">Implementation: </span>
-                  <span className="text-xs text-gray-600">{idea.implementation.requiredResources[0]}</span>
+                <div className="min-w-0">
+                  <span className="text-xs font-semibold text-purple-700">Implementation: </span>
+                  <span className="text-xs text-purple-600 break-words">{idea.implementation.requiredResources[0]}</span>
                 </div>
               )}
               {idea.implementation.timeline && (
-                <div>
-                  <span className="text-xs font-medium text-gray-700">Impact: </span>
-                  <span className="text-xs text-gray-600">{idea.implementation.timeline}</span>
+                <div className="min-w-0">
+                  <span className="text-xs font-semibold text-purple-700">Impact: </span>
+                  <span className="text-xs text-purple-600 break-words">{idea.implementation.timeline}</span>
                 </div>
               )}
             </div>
@@ -208,17 +212,17 @@ const IdeaCard = ({ idea, onIdeaUpdate, onIdeaDelete }) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+        <div className="flex items-center space-x-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 min-w-0">
           <Button
             variant="primary"
             size="sm"
             icon={EyeIcon}
             iconPosition="left"
             onClick={() => setShowDetailModal(true)}
-            className="text-white p-2 sm:px-3"
+            className="p-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 flex-shrink-0"
             title="View details"
           >
-            <span className="hidden sm:inline ml-1">View</span>
+            <span className="hidden sm:inline ml-1.5 whitespace-nowrap">View</span>
           </Button>
           
           {canDelete() && (
@@ -229,10 +233,10 @@ const IdeaCard = ({ idea, onIdeaUpdate, onIdeaDelete }) => {
               iconPosition="left"
               onClick={handleDelete}
               disabled={isDeleting}
-              className="text-white p-2 sm:px-3"
+              className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 flex-shrink-0"
               title="Delete idea"
             >
-              <span className="hidden sm:inline ml-1">Delete</span>
+              <span className="hidden sm:inline ml-1.5 whitespace-nowrap">Delete</span>
             </Button>
           )}
         </div>
@@ -240,12 +244,12 @@ const IdeaCard = ({ idea, onIdeaUpdate, onIdeaDelete }) => {
 
       {/* Tags */}
       {idea.tags && idea.tags.length > 0 && (
-        <div className="mb-4">
-          <div className="flex flex-wrap gap-1">
+        <div className="mb-4 relative min-w-0">
+          <div className="flex flex-wrap gap-2">
             {idea.tags.map((tag, index) => (
               <span
                 key={index}
-                className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-100 text-gray-700"
+                className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-indigo-100/80 backdrop-blur-sm text-indigo-700 border border-indigo-200/50 shadow-sm break-all"
               >
                 {tag}
               </span>
@@ -255,112 +259,115 @@ const IdeaCard = ({ idea, onIdeaUpdate, onIdeaDelete }) => {
       )}
 
       {/* Footer */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 border-t border-gray-200 gap-3 sm:gap-0">
-        <div className="flex items-center space-x-2 sm:space-x-4">
-          {/* Voting */}
-          <div className="flex items-center space-x-1 sm:space-x-2">
-            <button
-              onClick={() => handleVote('upvote')}
-              disabled={isVoting}
-              className={`flex items-center space-x-1 px-2 py-1 rounded-md text-xs sm:text-sm transition-colors ${
-                userVote === 'upvote'
-                  ? 'bg-green-100 text-green-700'
-                  : 'text-gray-500 hover:bg-gray-100'
-              }`}
-            >
-              {userVote === 'upvote' ? (
-                <HandThumbUpIconSolid className="h-3 w-3 sm:h-4 sm:w-4" />
-              ) : (
-                <HandThumbUpIcon className="h-3 w-3 sm:h-4 sm:w-4" />
-              )}
-              <span>{idea.votes.upvotes.length}</span>
-            </button>
+      <div className="flex flex-col space-y-3 pt-4 border-t border-gray-200/50 relative">
+        {/* Voting and Comments Row */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center justify-center sm:justify-start space-x-2 flex-wrap gap-2">
+            {/* Voting */}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => handleVote('upvote')}
+                disabled={isVoting}
+                className={`flex items-center space-x-1.5 px-3 py-2 rounded-full text-sm transition-all duration-200 backdrop-blur-sm shadow-sm ${
+                  userVote === 'upvote'
+                    ? 'bg-green-100/80 text-green-700 border border-green-200/50'
+                    : 'text-gray-500 hover:bg-gray-100/80 bg-white/50 border border-gray-200/50'
+                }`}
+              >
+                {userVote === 'upvote' ? (
+                  <HandThumbUpIconSolid className="h-4 w-4 flex-shrink-0" />
+                ) : (
+                  <HandThumbUpIcon className="h-4 w-4 flex-shrink-0" />
+                )}
+                <span className="font-medium">{idea.votes.upvotes.length}</span>
+              </button>
 
-            <button
-              onClick={() => handleVote('downvote')}
-              disabled={isVoting}
-              className={`flex items-center space-x-1 px-2 py-1 rounded-md text-xs sm:text-sm transition-colors ${
-                userVote === 'downvote'
-                  ? 'bg-red-100 text-red-700'
-                  : 'text-gray-500 hover:bg-gray-100'
-              }`}
-            >
-              {userVote === 'downvote' ? (
-                <HandThumbDownIconSolid className="h-3 w-3 sm:h-4 sm:w-4" />
-              ) : (
-                <HandThumbDownIcon className="h-3 w-3 sm:h-4 sm:w-4" />
-              )}
-              <span>{idea.votes.downvotes.length}</span>
-            </button>
+              <button
+                onClick={() => handleVote('downvote')}
+                disabled={isVoting}
+                className={`flex items-center space-x-1.5 px-3 py-2 rounded-full text-sm transition-all duration-200 backdrop-blur-sm shadow-sm ${
+                  userVote === 'downvote'
+                    ? 'bg-red-100/80 text-red-700 border border-red-200/50'
+                    : 'text-gray-500 hover:bg-gray-100/80 bg-white/50 border border-gray-200/50'
+                }`}
+              >
+                {userVote === 'downvote' ? (
+                  <HandThumbDownIconSolid className="h-4 w-4 flex-shrink-0" />
+                ) : (
+                  <HandThumbDownIcon className="h-4 w-4 flex-shrink-0" />
+                )}
+                <span className="font-medium">{idea.votes.downvotes.length}</span>
+              </button>
 
-            <div className="text-xs sm:text-sm font-medium text-gray-700 px-1">
-              {totalVotes > 0 ? `+${totalVotes}` : totalVotes}
+              <div className="text-sm font-semibold text-gray-700 px-3 py-2 bg-white/50 backdrop-blur-sm rounded-full border border-gray-200/50 shadow-sm">
+                {totalVotes > 0 ? `+${totalVotes}` : totalVotes}
+              </div>
             </div>
-          </div>
 
-          {/* Comments */}
-          <button
-            onClick={() => setShowComments(!showComments)}
-            className="flex items-center space-x-1 text-gray-500 hover:text-gray-700 text-xs sm:text-sm px-2 py-1 rounded-md hover:bg-gray-100 transition-colors"
-          >
-            <ChatBubbleLeftIcon className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span>{idea.comments.length}</span>
-            <span className="hidden sm:inline ml-1">comments</span>
-          </button>
+            {/* Comments */}
+            <button
+              onClick={() => setShowComments(!showComments)}
+              className="flex items-center space-x-2 text-gray-500 hover:text-gray-700 text-sm px-3 py-2 rounded-full hover:bg-gray-100/80 bg-white/50 backdrop-blur-sm border border-gray-200/50 shadow-sm transition-all duration-200"
+            >
+              <ChatBubbleLeftIcon className="h-4 w-4 flex-shrink-0" />
+              <span className="font-medium">{idea.comments.length}</span>
+              <span className="hidden sm:inline">comments</span>
+            </button>
+          </div>
         </div>
 
-        {/* Creator and Date */}
-        <div className="flex items-center justify-between sm:justify-end space-x-2 sm:space-x-4 text-xs sm:text-sm text-gray-500">
-          <div className="flex items-center space-x-1">
-            <UserIcon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-            <span className="truncate max-w-[100px] sm:max-w-none">{idea.creator?.name || 'Unknown'}</span>
+        {/* Creator and Date Row */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm text-gray-600">
+          <div className="flex items-center space-x-2 bg-white/50 backdrop-blur-sm rounded-full px-3 py-1.5 border border-gray-200/50 shadow-sm min-w-0">
+            <UserIcon className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate font-medium">{idea.creator?.name || 'Unknown'}</span>
           </div>
-          <div className="flex items-center space-x-1 flex-shrink-0">
-            <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">{new Date(idea.createdAt).toLocaleDateString()}</span>
-            <span className="sm:hidden">{new Date(idea.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+          <div className="flex items-center space-x-2 bg-white/50 backdrop-blur-sm rounded-full px-3 py-1.5 border border-gray-200/50 shadow-sm flex-shrink-0">
+            <CalendarIcon className="h-4 w-4 flex-shrink-0" />
+            <span className="hidden sm:inline font-medium whitespace-nowrap">{new Date(idea.createdAt).toLocaleDateString()}</span>
+            <span className="sm:hidden font-medium whitespace-nowrap">{new Date(idea.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
           </div>
         </div>
       </div>
 
       {/* Comments Section */}
       {showComments && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="mt-6 pt-6 border-t border-gray-200/50 relative">
           {/* Comments List */}
           <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
             {idea.comments.length === 0 ? (
-              <div className="text-center py-6">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full mb-3">
-                  <ChatBubbleLeftIcon className="w-6 h-6 text-gray-400" />
+              <div className="text-center py-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100/80 backdrop-blur-sm rounded-2xl mb-4 shadow-sm border border-gray-200/50">
+                  <ChatBubbleLeftIcon className="w-8 h-8 text-gray-400" />
                 </div>
-                <p className="text-gray-500 text-sm mb-2">No comments yet</p>
-                <p className="text-gray-400 text-xs">Be the first to share your thoughts!</p>
+                <p className="text-gray-600 text-sm mb-2 font-medium">No comments yet</p>
+                <p className="text-gray-500 text-xs">Be the first to share your thoughts!</p>
               </div>
             ) : (
               idea.comments.map((comment, index) => (
-                <div key={index} className="flex space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div key={index} className="flex space-x-3 p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/50 hover:bg-white/70 transition-all duration-200 shadow-sm">
                   <div className="flex-shrink-0">
                     {comment.user?.avatar ? (
                       <img 
                         src={comment.user.avatar} 
                         alt={comment.user?.name || 'User'}
-                        className="h-8 w-8 rounded-full object-cover ring-2 ring-white"
+                        className="h-10 w-10 rounded-full object-cover ring-2 ring-white shadow-sm"
                       />
                     ) : (
-                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center ring-2 ring-white">
-                        <span className="text-xs font-medium text-white">
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center ring-2 ring-white shadow-sm">
+                        <span className="text-sm font-medium text-white">
                           {comment.user?.name ? comment.user.name.charAt(0).toUpperCase() : '?'}
                         </span>
                       </div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center space-x-2">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-3">
                         <span className="text-sm font-semibold text-gray-900">
                           {comment.user?.name || 'Anonymous'}
                         </span>
-                        <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">
+                        <span className="text-xs text-gray-500 bg-white/80 backdrop-blur-sm px-2 py-1 rounded-full border border-gray-200/50 shadow-sm">
                           {comment.createdAt ? new Date(comment.createdAt).toLocaleDateString('en-US', { 
                             month: 'short', 
                             day: 'numeric',
@@ -380,18 +387,18 @@ const IdeaCard = ({ idea, onIdeaUpdate, onIdeaDelete }) => {
           </div>
 
           {/* Add Comment Form */}
-          <div className="border-t border-gray-200 pt-4">
+          <div className="border-t border-gray-200/50 pt-4">
             <div className="flex space-x-3">
               <div className="flex-shrink-0">
                 {user?.avatar ? (
                   <img 
                     src={user.avatar} 
                     alt={user.name || 'You'}
-                    className="h-8 w-8 rounded-full object-cover ring-2 ring-white"
+                    className="h-10 w-10 rounded-full object-cover ring-2 ring-white shadow-sm"
                   />
                 ) : (
-                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center ring-2 ring-white">
-                    <span className="text-xs font-medium text-white">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center ring-2 ring-white shadow-sm">
+                    <span className="text-sm font-medium text-white">
                       {user?.name ? user.name.charAt(0).toUpperCase() : 'Y'}
                     </span>
                   </div>
@@ -401,7 +408,7 @@ const IdeaCard = ({ idea, onIdeaUpdate, onIdeaDelete }) => {
                 <div className="relative">
                   <textarea
                     rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm resize-none placeholder-gray-400 bg-white"
+                    className="w-full px-4 py-3 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-none placeholder-gray-400 bg-white/50 backdrop-blur-sm transition-all duration-200 shadow-sm"
                     placeholder={`What are your thoughts, ${user?.name?.split(' ')[0] || 'there'}?`}
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
@@ -409,7 +416,7 @@ const IdeaCard = ({ idea, onIdeaUpdate, onIdeaDelete }) => {
                     disabled={isCommenting}
                     maxLength={500}
                   />
-                  <div className="absolute bottom-2 right-2 text-xs text-gray-400">
+                  <div className="absolute bottom-2 right-3 text-xs text-gray-500 bg-white/80 backdrop-blur-sm px-2 py-1 rounded-full">
                     {newComment.length}/500
                   </div>
                 </div>
@@ -426,7 +433,7 @@ const IdeaCard = ({ idea, onIdeaUpdate, onIdeaDelete }) => {
                         setShowComments(false);
                       }}
                       disabled={isCommenting}
-                      className="text-gray-600"
+                      className="bg-white/50 border-gray-200/50 backdrop-blur-sm hover:bg-white/70 text-gray-700 transition-all duration-200"
                     >
                       Cancel
                     </Button>
@@ -436,7 +443,7 @@ const IdeaCard = ({ idea, onIdeaUpdate, onIdeaDelete }) => {
                       loading={isCommenting}
                       size="sm"
                       variant="primary"
-                      className="min-w-[80px]"
+                      className="min-w-[80px] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 border-0 shadow-md hover:shadow-lg transition-all duration-200"
                     >
                       {isCommenting ? 'Posting...' : 'Post'}
                     </Button>
@@ -446,17 +453,16 @@ const IdeaCard = ({ idea, onIdeaUpdate, onIdeaDelete }) => {
             </div>
           </div>
         </div>
-      )}
+        )}
+      </div>
 
-      {/* Detail Modal */}
+      {/* Detail Modal - Rendered outside the card container */}
       <IdeaDetailModal
         isOpen={showDetailModal}
         onClose={() => setShowDetailModal(false)}
         idea={idea}
         onIdeaUpdate={onIdeaUpdate}
       />
-    </div>
+    </>
   );
-};
-
-export default IdeaCard;
+};export default IdeaCard;
