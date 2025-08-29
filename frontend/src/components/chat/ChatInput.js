@@ -82,8 +82,8 @@ const ChatInput = ({
 
 
   return (
-    <form onSubmit={handleSubmit} className="p-4">
-      <div className="flex items-center space-x-3">
+    <form onSubmit={handleSubmit} className="p-6 relative">
+      <div className="flex items-center space-x-4">
         {/* File upload button */}
         <div className="flex-shrink-0 flex items-center">
           <input
@@ -100,10 +100,10 @@ const ChatInput = ({
             size="sm"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="p-0 h-12 w-12 flex items-center justify-center rounded-full hover:bg-gray-100"
+            className="p-3 h-12 w-12 flex items-center justify-center rounded-xl bg-white/50 backdrop-blur-sm border-white/30 hover:bg-white/70 shadow-sm transition-all duration-200"
             title="Attach file"
           >
-            <PaperClipIcon className="h-5 w-5" />
+            <PaperClipIcon className="h-5 w-5 text-gray-600" />
           </Button>
         </div>
 
@@ -116,7 +116,7 @@ const ChatInput = ({
             onKeyPress={handleKeyPress}
             onBlur={onTypingStop}
             placeholder={placeholder}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none min-h-[48px] max-h-32"
+            className="w-full px-6 py-4 bg-white/50 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-300 resize-none min-h-[48px] max-h-32 shadow-sm transition-all duration-200 hover:bg-white/60 placeholder-gray-500"
             rows={1}
             disabled={isUploading}
           />
@@ -129,13 +129,13 @@ const ChatInput = ({
             variant="primary"
             size="sm"
             disabled={!message.trim() || isUploading}
-            className="p-0 h-12 w-12 flex items-center justify-center rounded-full"
+            className="p-3 h-12 w-12 flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 border-0 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200"
             title="Send message"
           >
             {isUploading ? (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
             ) : (
-              <PaperAirplaneIcon className="h-5 w-5" />
+              <PaperAirplaneIcon className="h-5 w-5 text-white" />
             )}
           </Button>
         </div>
@@ -143,10 +143,13 @@ const ChatInput = ({
 
       {/* File upload progress */}
       {isUploading && (
-        <div className="mt-2">
-          <div className="text-xs text-gray-500 mb-1">Uploading file...</div>
-          <div className="w-full bg-gray-200 rounded-full h-1">
-            <div className="bg-primary-600 h-1 rounded-full animate-pulse w-1/2"></div>
+        <div className="mt-4 p-3 bg-white/50 backdrop-blur-sm rounded-xl border border-white/30 shadow-sm">
+          <div className="text-sm text-gray-600 font-medium mb-2 flex items-center">
+            <PaperClipIcon className="h-4 w-4 mr-2 text-blue-600" />
+            Uploading file...
+          </div>
+          <div className="w-full bg-gray-200/50 rounded-full h-2 overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full animate-pulse w-1/2 shadow-sm"></div>
           </div>
         </div>
       )}

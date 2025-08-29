@@ -167,9 +167,12 @@ const UserManagement = ({ systemStats, onStatsUpdate }) => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 relative">
+      {/* Background decorations */}
+      <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-blue-100/30 to-transparent rounded-full -translate-y-6 -translate-x-6"></div>
+      
       {/* Filters */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+      <div className="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 gap-4">
         <div className="relative">
           <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-3 text-gray-400" />
           <input
@@ -177,15 +180,15 @@ const UserManagement = ({ systemStats, onStatsUpdate }) => {
             placeholder="Search users by name or email..."
             value={searchTerm}
             onChange={handleSearch}
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-80"
+            className="pl-10 pr-4 py-3 bg-white/70 backdrop-blur-sm border border-white/30 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:bg-white/80 w-full lg:w-80"
           />
         </div>
 
-        <div className="flex space-x-4">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full lg:w-auto">
           <select
             value={statusFilter}
             onChange={(e) => handleFilterChange('status', e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="px-4 py-3 bg-white/70 backdrop-blur-sm border border-white/30 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:bg-white/80"
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
@@ -195,7 +198,7 @@ const UserManagement = ({ systemStats, onStatsUpdate }) => {
           <select
             value={roleFilter}
             onChange={(e) => handleFilterChange('role', e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="px-4 py-3 bg-white/70 backdrop-blur-sm border border-white/30 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:bg-white/80"
           >
             <option value="all">All Roles</option>
             <option value="admin">Admin</option>
@@ -206,113 +209,115 @@ const UserManagement = ({ systemStats, onStatsUpdate }) => {
       </div>
 
       {/* Users Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                User
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Role
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Activity
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Joined
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {users.map((user) => (
-              <tr key={user._id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10">
-                      {user.avatar ? (
-                        <img
-                          className="h-10 w-10 rounded-full"
-                          src={user.avatar}
-                          alt={user.name}
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                          <UserCircleIcon className="h-6 w-6 text-gray-600" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {user.name}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {user.email}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(user.role)}`}>
-                    {user.role}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(user.isActive)}`}>
-                    {user.isActive ? 'Active' : 'Inactive'}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <div className="flex items-center space-x-3">
-                    <span>{user.stats.projects} projects</span>
-                    <span>{user.stats.tasks} tasks</span>
-                    <span>{user.stats.ideas} ideas</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {new Date(user.createdAt).toLocaleDateString()}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleViewUser(user._id)}
-                      className="text-blue-600 hover:text-blue-900"
-                      disabled={actionLoading}
-                    >
-                      <EyeIcon className="h-4 w-4" />
-                    </button>
-                  </div>
-                </td>
+      <div className="bg-white/60 backdrop-blur-sm rounded-xl border border-white/30 shadow-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-white/30">
+            <thead className="bg-white/40 backdrop-blur-sm">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  User
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Role
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Activity
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Joined
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white/30 backdrop-blur-sm divide-y divide-white/20">
+              {users.map((user) => (
+                <tr key={user._id} className="hover:bg-white/40 transition-all duration-200">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-10 w-10">
+                        {user.avatar ? (
+                          <img
+                            className="h-10 w-10 rounded-full border-2 border-white/50 shadow-sm"
+                            src={user.avatar}
+                            alt={user.name}
+                          />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center justify-center border-2 border-white/50 shadow-sm">
+                            <UserCircleIcon className="h-6 w-6 text-white" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-semibold text-gray-900">
+                          {user.name}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {user.email}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full backdrop-blur-sm border ${getRoleColor(user.role)}`}>
+                      {user.role}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full backdrop-blur-sm border ${getStatusColor(user.isActive)}`}>
+                      {user.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <div className="flex items-center space-x-3">
+                      <span className="bg-white/50 backdrop-blur-sm px-2 py-1 rounded-full text-xs border border-white/30">{user.stats.projects} projects</span>
+                      <span className="bg-white/50 backdrop-blur-sm px-2 py-1 rounded-full text-xs border border-white/30">{user.stats.tasks} tasks</span>
+                      <span className="bg-white/50 backdrop-blur-sm px-2 py-1 rounded-full text-xs border border-white/30">{user.stats.ideas} ideas</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
+                    {new Date(user.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleViewUser(user._id)}
+                        className="p-2 text-blue-600 hover:text-blue-800 bg-white/50 hover:bg-white/70 rounded-lg border border-white/30 transition-all duration-200 backdrop-blur-sm"
+                        disabled={actionLoading}
+                      >
+                        <EyeIcon className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Pagination */}
       {pagination && (
-        <div className="mt-6 flex items-center justify-between">
-          <div className="text-sm text-gray-700">
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/30 shadow-lg">
+          <div className="text-sm text-gray-700 font-medium mb-2 sm:mb-0">
             Showing page {pagination.current} of {pagination.pages} ({pagination.total} users)
           </div>
           <div className="flex space-x-2">
             <button
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={!pagination.hasPrev}
-              className="px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium bg-white/60 hover:bg-white/80 disabled:bg-gray-200/50 disabled:text-gray-400 border border-white/30 rounded-lg transition-all duration-200 backdrop-blur-sm shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
             </button>
             <button
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={!pagination.hasNext}
-              className="px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium bg-white/60 hover:bg-white/80 disabled:bg-gray-200/50 disabled:text-gray-400 border border-white/30 rounded-lg transition-all duration-200 backdrop-blur-sm shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
             </button>
@@ -330,28 +335,28 @@ const UserManagement = ({ systemStats, onStatsUpdate }) => {
         {selectedUser && (
           <div className="space-y-6">
             {/* User Info */}
-            <div className="flex items-center space-x-4">
-              <div className="h-16 w-16 rounded-full bg-gray-300 flex items-center justify-center">
+            <div className="flex items-center space-x-4 p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/30">
+              <div className="h-16 w-16 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center justify-center border-2 border-white/50 shadow-lg">
                 {selectedUser.user.avatar ? (
                   <img
-                    className="h-16 w-16 rounded-full"
+                    className="h-16 w-16 rounded-full object-cover"
                     src={selectedUser.user.avatar}
                     alt={selectedUser.user.name}
                   />
                 ) : (
-                  <UserCircleIcon className="h-10 w-10 text-gray-600" />
+                  <UserCircleIcon className="h-10 w-10 text-white" />
                 )}
               </div>
               <div>
-                <h3 className="text-lg font-medium text-gray-900">
+                <h3 className="text-lg font-semibold text-gray-900">
                   {selectedUser.user.name}
                 </h3>
-                <p className="text-sm text-gray-500">{selectedUser.user.email}</p>
-                <div className="flex items-center space-x-2 mt-2">
-                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(selectedUser.user.role)}`}>
+                <p className="text-sm text-gray-600 mb-2">{selectedUser.user.email}</p>
+                <div className="flex items-center space-x-2">
+                  <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full backdrop-blur-sm border ${getRoleColor(selectedUser.user.role)}`}>
                     {selectedUser.user.role}
                   </span>
-                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedUser.user.isActive)}`}>
+                  <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full backdrop-blur-sm border ${getStatusColor(selectedUser.user.isActive)}`}>
                     {selectedUser.user.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </div>
@@ -360,43 +365,43 @@ const UserManagement = ({ systemStats, onStatsUpdate }) => {
 
             {/* User Stats */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-semibold text-blue-600">
+              <div className="text-center p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/30 shadow-sm">
+                <div className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent">
                   {selectedUser.stats.projects}
                 </div>
-                <div className="text-sm text-gray-500">Projects</div>
+                <div className="text-sm text-gray-600 font-medium">Projects</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-semibold text-green-600">
+              <div className="text-center p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/30 shadow-sm">
+                <div className="text-2xl font-bold bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent">
                   {selectedUser.stats.tasks}
                 </div>
-                <div className="text-sm text-gray-500">Tasks</div>
+                <div className="text-sm text-gray-600 font-medium">Tasks</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-semibold text-yellow-600">
+              <div className="text-center p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/30 shadow-sm">
+                <div className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-violet-600 bg-clip-text text-transparent">
                   {selectedUser.stats.ideas}
                 </div>
-                <div className="text-sm text-gray-500">Ideas</div>
+                <div className="text-sm text-gray-600 font-medium">Ideas</div>
               </div>
             </div>
 
             {/* Actions */}
-            <div className="border-t pt-6">
-              <h4 className="text-sm font-medium text-gray-900 mb-4">Administrative Actions</h4>
+            <div className="border-t border-white/30 pt-6">
+              <h4 className="text-sm font-semibold text-gray-900 mb-4">Administrative Actions</h4>
               <div className="space-y-4">
                 {/* Status Toggle */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-700">Account Status</span>
+                <div className="flex items-center justify-between p-3 bg-white/50 backdrop-blur-sm rounded-xl border border-white/30">
+                  <span className="text-sm font-medium text-gray-700">Account Status</span>
                   <button
                     onClick={() => handleUpdateUserStatus(
                       selectedUser.user._id,
                       !selectedUser.user.isActive,
                       !selectedUser.user.isActive ? 'Reactivated by admin' : 'Deactivated by admin'
                     )}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                    className={`px-4 py-2 text-sm font-medium rounded-lg backdrop-blur-sm border transition-all duration-200 ${
                       selectedUser.user.isActive
-                        ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                        ? 'bg-red-100/80 text-red-700 hover:bg-red-200/80 border-red-200/50'
+                        : 'bg-green-100/80 text-green-700 hover:bg-green-200/80 border-green-200/50'
                     }`}
                     disabled={actionLoading}
                   >
@@ -405,13 +410,13 @@ const UserManagement = ({ systemStats, onStatsUpdate }) => {
                 </div>
 
                 {/* Role Update */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-700">User Role</span>
+                <div className="flex items-center justify-between p-3 bg-white/50 backdrop-blur-sm rounded-xl border border-white/30">
+                  <span className="text-sm font-medium text-gray-700">User Role</span>
                   <select
                     value={selectedUser.user.role}
                     onChange={(e) => handleUpdateUserRole(selectedUser.user._id, e.target.value)}
                     disabled={actionLoading}
-                    className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="px-3 py-2 text-sm bg-white/70 backdrop-blur-sm border border-white/30 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   >
                     <option value="user">User</option>
                     <option value="manager">Manager</option>
@@ -420,14 +425,14 @@ const UserManagement = ({ systemStats, onStatsUpdate }) => {
                 </div>
 
                 {/* Delete User */}
-                <div className="flex items-center justify-between pt-4 border-t">
+                <div className="flex items-center justify-between pt-4 border-t border-white/30 p-3 bg-white/50 backdrop-blur-sm rounded-xl border border-white/30">
                   <div>
-                    <span className="text-sm text-gray-700">Delete User</span>
-                    <p className="text-xs text-gray-500">Permanently delete this user account</p>
+                    <span className="text-sm font-medium text-gray-700">Delete User</span>
+                    <p className="text-xs text-gray-600">Permanently delete this user account</p>
                   </div>
                   <button
                     onClick={() => handleDeleteUser(selectedUser.user._id)}
-                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg"
+                    className="px-4 py-2 text-sm font-medium bg-red-100/80 text-red-700 hover:bg-red-200/80 border border-red-200/50 rounded-lg transition-all duration-200 backdrop-blur-sm"
                     disabled={actionLoading}
                   >
                     Delete User

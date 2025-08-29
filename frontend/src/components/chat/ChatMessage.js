@@ -16,23 +16,41 @@ const ChatMessage = ({ message, isCurrentUser }) => {
   };
 
   return (
-    <div className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-4`}>
-      <div className="flex max-w-xs lg:max-w-md flex-row items-start gap-3">
+    <div className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-6`}>
+      <div className="flex max-w-xs lg:max-w-md flex-row items-start gap-4">
+        {!isCurrentUser && (
+          <div className="flex-shrink-0 order-first">
+            {message.sender.avatar ? (
+              <img
+                src={message.sender.avatar}
+                alt={message.sender.name}
+                className="h-10 w-10 rounded-full object-cover border-2 border-white shadow-lg"
+              />
+            ) : (
+              <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center border-2 border-white shadow-lg">
+                <span className="text-sm font-bold text-white">
+                  {getUserInitials(message.sender.name)}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+        
         {/* Message Content */}
         <div className="flex-1 min-h-[10px] flex flex-col justify-center">
           {/* Sender name (only for other users) */}
           {!isCurrentUser && (
-            <div className="text-xs text-gray-600 mb-1 font-medium">
+            <div className="text-xs text-gray-600 mb-2 font-semibold px-2">
               {message.sender.name}
             </div>
           )}
 
           {/* Message bubble */}
           <div
-            className={`px-3 py-2 rounded-2xl min-h-[10px] flex items-center ${
+            className={`px-5 py-3 rounded-2xl min-h-[10px] flex items-center backdrop-blur-sm border shadow-lg transition-all duration-200 hover:shadow-xl ${
               isCurrentUser
-                ? 'bg-primary-600 text-white rounded-br-md'
-                : 'bg-gray-100 text-gray-900 rounded-bl-md'
+                ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-br-md border-blue-300/50 shadow-blue-500/25'
+                : 'bg-white/80 text-gray-900 rounded-bl-md border-white/30 shadow-gray-500/10'
             }`}
           >
             {message.type === 'text' ? (
@@ -75,27 +93,30 @@ const ChatMessage = ({ message, isCurrentUser }) => {
           </div>
 
           {/* Timestamp */}
-          <div className="text-xs text-gray-500 mt-1 text-left">
+          <div className={`text-xs mt-2 px-2 ${
+            isCurrentUser ? 'text-blue-500 text-right' : 'text-gray-500 text-left'
+          }`}>
             {formatTime(message.timestamp)}
           </div>
         </div>
 
-        {/* Avatar (always on the right) */}
-        <div className="flex-shrink-0">
-          {message.sender.avatar ? (
-            <img
-              src={message.sender.avatar}
-              alt={message.sender.name}
-              className="h-10 w-10 rounded-full object-cover"
-            />
-          ) : (
-            <div className="h-10 w-10 rounded-full bg-primary-600 flex items-center justify-center">
-              <span className="text-sm font-medium text-white">
-                {getUserInitials(message.sender.name)}
-              </span>
-            </div>
-          )}
-        </div>
+        {isCurrentUser && (
+          <div className="flex-shrink-0 order-last">
+            {message.sender.avatar ? (
+              <img
+                src={message.sender.avatar}
+                alt={message.sender.name}
+                className="h-10 w-10 rounded-full object-cover border-2 border-white shadow-lg"
+              />
+            ) : (
+              <div className="h-10 w-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center border-2 border-white shadow-lg">
+                <span className="text-sm font-bold text-white">
+                  {getUserInitials(message.sender.name)}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

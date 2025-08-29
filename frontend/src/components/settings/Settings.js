@@ -16,7 +16,11 @@ import {
   GlobeAltIcon,
   PaintBrushIcon,
   CheckIcon,
-  XMarkIcon
+  XMarkIcon,
+  UserIcon,
+  EnvelopeIcon,
+  LockClosedIcon,
+  ClockIcon
 } from '@heroicons/react/24/outline';
 
 const Settings = () => {
@@ -153,25 +157,29 @@ const Settings = () => {
   const renderGeneralSettings = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Account Information</h3>
-        <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-          <div className="flex justify-between items-center">
+        <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+          <UserIcon className="h-5 w-5 mr-2 text-blue-600" />
+          Account Information
+        </h3>
+        <div className="bg-gradient-to-br from-blue-50/70 to-cyan-50/70 backdrop-blur-sm rounded-xl p-4 space-y-3 border border-blue-200/50">
+          <div className="flex justify-between items-center p-3 bg-white/50 backdrop-blur-sm rounded-xl">
             <span className="text-sm font-medium text-gray-700">Name:</span>
-            <span className="text-sm text-gray-900">{user.name}</span>
+            <span className="text-sm text-gray-900 font-medium">{user.name}</span>
           </div>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center p-3 bg-white/50 backdrop-blur-sm rounded-xl">
             <span className="text-sm font-medium text-gray-700">Email:</span>
-            <span className="text-sm text-gray-900">{user.email}</span>
+            <span className="text-sm text-gray-900 font-medium">{user.email}</span>
           </div>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center p-3 bg-white/50 backdrop-blur-sm rounded-xl">
             <span className="text-sm font-medium text-gray-700">Role:</span>
-            <span className="text-sm text-gray-900 capitalize">{user.role?.replace('_', ' ')}</span>
+            <span className="text-sm text-gray-900 font-medium capitalize">{user.role?.replace('_', ' ')}</span>
           </div>
-          <div className="pt-2 border-t border-gray-200">
+          <div className="pt-2 border-t border-blue-200/30">
             <Button
               variant="outline"
               size="sm"
               onClick={() => window.location.href = '/profile'}
+              className="bg-white/50 border-white/50 backdrop-blur-sm hover:bg-white/70"
             >
               Edit Profile
             </Button>
@@ -180,7 +188,10 @@ const Settings = () => {
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Language & Region</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+          <GlobeAltIcon className="h-5 w-5 mr-2 text-indigo-600" />
+          Language & Region
+        </h3>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -189,7 +200,7 @@ const Settings = () => {
             <select
               value={settings.appearance.language}
               onChange={(e) => updateSimpleSetting('appearance', 'language', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 backdrop-blur-sm transition-all duration-200"
             >
               <option value="en">English</option>
               <option value="es">Español</option>
@@ -205,7 +216,7 @@ const Settings = () => {
             <select
               value={settings.appearance.timezone}
               onChange={(e) => updateSimpleSetting('appearance', 'timezone', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 backdrop-blur-sm transition-all duration-200"
             >
               <option value="America/New_York">Eastern Time</option>
               <option value="America/Chicago">Central Time</option>
@@ -222,23 +233,33 @@ const Settings = () => {
   const renderNotificationSettings = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Email Notifications</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+          <EnvelopeIcon className="h-5 w-5 mr-2 text-blue-600" />
+          Email Notifications
+        </h3>
         <div className="space-y-4">
           {Object.entries(settings.notifications.email).map(([key, value]) => (
-            <div key={key} className="flex items-center justify-between">
+            <div key={key} className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200/50 hover:bg-white/70 transition-all duration-200">
               <div>
                 <span className="text-sm font-medium text-gray-900 capitalize">
                   {key.replace(/([A-Z])/g, ' $1').toLowerCase()}
                 </span>
+                <p className="text-xs text-gray-500 mt-1">
+                  {key === 'projectUpdates' && 'Get notified about project changes and updates'}
+                  {key === 'taskAssignments' && 'Receive alerts when tasks are assigned to you'}
+                  {key === 'teamInvites' && 'Be notified when you\'re invited to join teams'}
+                  {key === 'systemAnnouncements' && 'Important system updates and maintenance notices'}
+                  {key === 'weeklyDigest' && 'Weekly summary of your activity and progress'}
+                </p>
               </div>
               <button
                 onClick={() => updateSetting('notifications', 'email', key, !value)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  value ? 'bg-blue-600' : 'bg-gray-200'
+                  value ? 'bg-gradient-to-r from-blue-500 to-indigo-600' : 'bg-gray-200'
                 }`}
               >
                 <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-lg ${
                     value ? 'translate-x-6' : 'translate-x-1'
                   }`}
                 />
@@ -249,23 +270,33 @@ const Settings = () => {
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Browser Notifications</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+          <BellIcon className="h-5 w-5 mr-2 text-indigo-600" />
+          Browser Notifications
+        </h3>
         <div className="space-y-4">
           {Object.entries(settings.notifications.browser).map(([key, value]) => (
-            <div key={key} className="flex items-center justify-between">
+            <div key={key} className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200/50 hover:bg-white/70 transition-all duration-200">
               <div>
                 <span className="text-sm font-medium text-gray-900 capitalize">
                   {key.replace(/([A-Z])/g, ' $1').toLowerCase()}
                 </span>
+                <p className="text-xs text-gray-500 mt-1">
+                  {key === 'projectUpdates' && 'Real-time browser notifications for project changes'}
+                  {key === 'taskAssignments' && 'Instant alerts for new task assignments'}
+                  {key === 'teamInvites' && 'Immediate notifications for team invitations'}
+                  {key === 'taskDeadlines' && 'Reminders for approaching task deadlines'}
+                  {key === 'mentions' && 'Alerts when someone mentions you in discussions'}
+                </p>
               </div>
               <button
                 onClick={() => updateSetting('notifications', 'browser', key, !value)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  value ? 'bg-blue-600' : 'bg-gray-200'
+                  value ? 'bg-gradient-to-r from-indigo-500 to-purple-600' : 'bg-gray-200'
                 }`}
               >
                 <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-lg ${
                     value ? 'translate-x-6' : 'translate-x-1'
                   }`}
                 />
@@ -436,10 +467,13 @@ const Settings = () => {
 
   const renderSecuritySettings = () => (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Authentication</h3>
+      <div className="p-6 bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200/50">
+        <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+          <LockClosedIcon className="h-5 w-5 mr-2 text-red-600" />
+          Authentication
+        </h3>
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-white/60 backdrop-blur-sm rounded-lg border border-gray-200/30">
             <div>
               <span className="text-sm font-medium text-gray-900">Two-Factor Authentication</span>
               <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
@@ -455,8 +489,11 @@ const Settings = () => {
         </div>
       </div>
 
-      <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Session Management</h3>
+      <div className="p-6 bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200/50">
+        <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+          <ClockIcon className="h-5 w-5 mr-2 text-blue-600" />
+          Session Management
+        </h3>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -465,7 +502,7 @@ const Settings = () => {
             <select
               value={settings.security.sessionTimeout}
               onChange={(e) => updateSimpleSetting('security', 'sessionTimeout', parseInt(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
             >
               <option value={15}>15 minutes</option>
               <option value={30}>30 minutes</option>
@@ -475,7 +512,7 @@ const Settings = () => {
             </select>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between p-4 bg-white/60 backdrop-blur-sm rounded-lg border border-gray-200/30">
             <div>
               <span className="text-sm font-medium text-gray-900">Login alerts</span>
               <p className="text-sm text-gray-500">Get notified when someone logs into your account</p>
@@ -483,11 +520,11 @@ const Settings = () => {
             <button
               onClick={() => updateSimpleSetting('security', 'loginAlerts', !settings.security.loginAlerts)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                settings.security.loginAlerts ? 'bg-blue-600' : 'bg-gray-200'
+                settings.security.loginAlerts ? 'bg-gradient-to-r from-blue-500 to-indigo-600' : 'bg-gray-200'
               }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-lg ${
                   settings.security.loginAlerts ? 'translate-x-6' : 'translate-x-1'
                 }`}
               />
@@ -519,75 +556,114 @@ const Settings = () => {
     return (
       <div className="flex items-center justify-center min-h-96">
         <div className="text-center">
-          <LoadingSpinner size="lg" />
-          <p className="mt-3 text-gray-600">Loading settings...</p>
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 mb-4">
+            <LoadingSpinner size="lg" className="text-blue-600" />
+          </div>
+          <p className="mt-3 text-gray-600 text-sm font-medium">Loading settings...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-      <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-600 mt-1">Manage your account preferences and settings</p>
+    <div className="space-y-6 w-full max-w-7xl mx-auto px-2 sm:px-0">
+      {/* Header with Glass Effect */}
+      <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-6 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-purple-100/50 to-transparent rounded-full -translate-y-8 translate-x-8"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-blue-100/50 to-transparent rounded-full translate-y-4 -translate-x-4"></div>
+        
+        <div className="relative flex items-center space-x-3">
+          <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl shadow-lg">
+            <CogIcon className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl mb-0 font-bold bg-gradient-to-r from-gray-900 via-purple-900 to-indigo-900 bg-clip-text text-transparent">
+              Settings
+            </h1>
+            <p className="text-gray-600 mb-0">
+              Manage your account preferences and application settings
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Settings Navigation */}
         <div className="lg:col-span-1">
-          <nav className="space-y-1">
-            {sections.map((section) => {
-              const Icon = section.icon;
-              return (
-                <button
-                  key={section.id}
-                  onClick={() => setActiveSection(section.id)}
-                  className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                    activeSection === section.id
-                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                      : 'text-gray-700 hover:bg-gray-50 border border-transparent'
-                  }`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <Icon className={`w-5 h-5 ${
-                      activeSection === section.id ? 'text-blue-600' : 'text-gray-400'
-                    }`} />
-                    <div>
-                      <div className="text-sm font-medium">{section.name}</div>
-                      <div className="text-xs text-gray-500 hidden sm:block">{section.description}</div>
+          <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-4 relative overflow-hidden">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-indigo-100/30 to-transparent rounded-full -translate-y-4 translate-x-4"></div>
+            
+            <h3 className="text-sm font-semibold text-gray-900 mb-4 relative">Categories</h3>
+            <nav className="space-y-1 relative">
+              {sections.map((section) => {
+                const Icon = section.icon;
+                return (
+                  <button
+                    key={section.id}
+                    onClick={() => setActiveSection(section.id)}
+                    className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 group ${
+                      activeSection === section.id
+                        ? 'bg-blue-100/80 backdrop-blur-sm text-blue-700 border border-blue-200/50 shadow-sm'
+                        : 'text-gray-700 hover:bg-white/50 hover:backdrop-blur-sm border border-transparent hover:border-gray-200/50'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Icon className={`w-5 h-5 transition-colors duration-200 ${
+                        activeSection === section.id ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'
+                      }`} />
+                      <div>
+                        <div className="text-sm font-medium">{section.name}</div>
+                        <div className="text-xs text-gray-500 hidden sm:block mt-1">{section.description}</div>
+                      </div>
                     </div>
-                  </div>
-                </button>
-              );
-            })}
-          </nav>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
         </div>
 
         {/* Settings Content */}
         <div className="lg:col-span-3">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">
-                {sections.find(s => s.id === activeSection)?.name}
-              </h2>
-              <p className="text-sm text-gray-600 mt-1">
-                {sections.find(s => s.id === activeSection)?.description}
-              </p>
+          <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 overflow-hidden relative">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-100/30 to-transparent rounded-full -translate-y-8 translate-x-8"></div>
+            
+            <div className="px-6 py-4 border-b border-gray-200/50 bg-white/30 backdrop-blur-sm relative">
+              <div className="flex items-center space-x-3">
+                {sections.find(s => s.id === activeSection)?.icon && (
+                  <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
+                    {React.createElement(sections.find(s => s.id === activeSection).icon, {
+                      className: "h-5 w-5 text-white"
+                    })}
+                  </div>
+                )}
+                <div>
+                  <h2 className="text-lg mb-0 font-semibold text-gray-900">
+                    {sections.find(s => s.id === activeSection)?.name}
+                  </h2>
+                  <p className="text-sm text-gray-600 mb-0">
+                    {sections.find(s => s.id === activeSection)?.description}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="px-6 py-6">
+            <div className="px-6 py-6 relative">
               {renderCurrentSection()}
             </div>
 
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+            <div className="px-6 py-4 bg-white/30 backdrop-blur-sm border-t border-gray-200/50 flex justify-end relative">
               <Button
                 variant="primary"
                 onClick={saveSettings}
+                icon={CheckIcon}
+                iconPosition='left'
                 disabled={isSaving}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/25 border-0"
               >
-                {isSaving ? <LoadingSpinner size="sm" className="mr-2" /> : null}
                 Save Changes
               </Button>
             </div>

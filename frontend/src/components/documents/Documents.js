@@ -168,65 +168,96 @@ const Documents = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <LoadingSpinner size="xl" />
+      <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-8 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-purple-100/50 to-transparent rounded-full -translate-y-10 translate-x-10"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-blue-100/50 to-transparent rounded-full translate-y-8 -translate-x-8"></div>
+        
+        <div className="flex flex-col items-center justify-center h-96 relative">
+          <div className="mb-6 p-4 bg-white/50 backdrop-blur-sm rounded-2xl border border-white/30 shadow-lg">
+            <DocumentTextIcon className="h-12 w-12 text-indigo-600" />
+          </div>
+          <LoadingSpinner size="xl" className="mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading Documents</h3>
+          <p className="text-sm text-gray-600 text-center max-w-md">
+            Setting up your collaborative document workspace...
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col relative">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-purple-100/30 to-transparent rounded-full -translate-y-10 translate-x-10 -z-10"></div>
+      <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-blue-100/30 to-transparent rounded-full translate-y-8 -translate-x-8 -z-10"></div>
+      
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {activeView === 'list' ? 'Documents' : 
-             activeView === 'editor' ? (isCreating ? 'Create Document' : 'Edit Document') :
-             'Version History'}
-          </h3>
-          <p className="text-sm text-gray-600">
-            {activeView === 'list' ? 'Manage project documents with version control' :
-             activeView === 'editor' ? 'Collaborative document editing with auto-save' :
-             'View and manage document version history'}
-          </p>
-        </div>
+      <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-6 mb-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-purple-100/50 to-transparent rounded-full -translate-y-5 translate-x-5"></div>
         
-        <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-          {activeView !== 'list' && (
-            <Button
-              variant="outline"
-              onClick={handleBackToList}
-            >
-              Back to Documents
-            </Button>
-          )}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between relative">
+          <div>
+            <div className="flex items-center space-x-3 mb-2">
+              <div className="p-2 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl shadow-lg shadow-purple-500/25">
+                <DocumentTextIcon className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">
+                {activeView === 'list' ? 'Documents' : 
+                 activeView === 'editor' ? (isCreating ? 'Create Document' : 'Edit Document') :
+                 'Version History'}
+              </h3>
+            </div>
+            <p className="text-sm text-gray-600">
+              {activeView === 'list' ? 'Manage project documents with version control' :
+               activeView === 'editor' ? 'Collaborative document editing with auto-save' :
+               'View and manage document version history'}
+            </p>
+          </div>
           
-          {activeView === 'list' && (
-            <Button
-              variant="primary"
-              icon={PlusIcon}
-              iconPosition="left"
-              onClick={handleCreateDocument}
-            >
-              New Document
-            </Button>
-          )}
+          <div className="flex items-center space-x-3 mt-4 sm:mt-0">
+            {activeView !== 'list' && (
+              <Button
+                variant="outline"
+                onClick={handleBackToList}
+                className="bg-white/50 border-gray-200/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-200"
+              >
+                Back to Documents
+              </Button>
+            )}
+            
+            {activeView === 'list' && (
+              <Button
+                variant="primary"
+                icon={PlusIcon}
+                iconPosition="left"
+                onClick={handleCreateDocument}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 border-0 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-200"
+              >
+                New Document
+              </Button>
+            )}
 
-          {activeView === 'editor' && selectedDocument && (
-            <Button
-              variant="success"
-              icon={ClockIcon}
-              iconPosition="left"
-              onClick={() => handleViewVersions(selectedDocument)}
-            >
-              Version History
-            </Button>
-          )}
+            {activeView === 'editor' && selectedDocument && (
+              <Button
+                variant="success"
+                icon={ClockIcon}
+                iconPosition="left"
+                onClick={() => handleViewVersions(selectedDocument)}
+                className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 border-0 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-200"
+              >
+                Version History
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="flex-1 bg-white/60 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 overflow-hidden relative">
+        <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-purple-100/50 to-transparent rounded-full -translate-y-8 -translate-x-8"></div>
+        
         {activeView === 'list' && (
           <DocumentList
             documents={documents}

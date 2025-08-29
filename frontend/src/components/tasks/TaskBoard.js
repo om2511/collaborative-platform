@@ -320,45 +320,78 @@ const TaskBoard = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <LoadingSpinner size="xl" />
+      <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-8 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-blue-100/50 to-transparent rounded-full -translate-y-10 translate-x-10"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-indigo-100/50 to-transparent rounded-full translate-y-8 -translate-x-8"></div>
+        
+        <div className="flex flex-col items-center justify-center h-96 relative">
+          <div className="mb-6 p-4 bg-white/50 backdrop-blur-sm rounded-2xl border border-white/30 shadow-lg">
+            <CheckCircleIcon className="h-12 w-12 text-indigo-600" />
+          </div>
+          <LoadingSpinner size="xl" className="mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading Task Board</h3>
+          <p className="text-sm text-gray-600 text-center max-w-md">
+            Setting up your project's task management board...
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col relative">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-blue-100/30 to-transparent rounded-full -translate-y-10 translate-x-10 -z-10"></div>
+      <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-indigo-100/30 to-transparent rounded-full translate-y-8 -translate-x-8 -z-10"></div>
+      
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Tasks</h3>
-          <p className="text-sm text-gray-600">
-            Organize and track project tasks with drag-and-drop Kanban board
-          </p>
-        </div>
+      <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-6 mb-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-blue-100/50 to-transparent rounded-full -translate-y-5 translate-x-5"></div>
         
-        <Button
-          variant="primary"
-          icon={PlusIcon}
-          iconPosition="left"
-          onClick={() => {
-            setSelectedColumn('todo');
-            setShowAddModal(true);
-          }}
-          className="mt-4 sm:mt-0"
-        >
-          Add Task
-        </Button>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between relative">
+          <div>
+            <div className="flex items-center space-x-3 mb-2">
+              <div className="p-2 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-xl shadow-lg shadow-indigo-500/25">
+                <CheckCircleIcon className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">Task Board</h3>
+            </div>
+            <p className="text-sm text-gray-600">
+              Organize and track project tasks with drag-and-drop Kanban board
+            </p>
+          </div>
+          
+          <Button
+            variant="primary"
+            icon={PlusIcon}
+            iconPosition="left"
+            onClick={() => {
+              setSelectedColumn('todo');
+              setShowAddModal(true);
+            }}
+            className="mt-4 sm:mt-0 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 border-0 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all duration-200"
+          >
+            Add Task
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-6 mb-6 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-purple-100/50 to-transparent rounded-full -translate-y-8 -translate-x-8"></div>
+        
+        <div className="flex items-center space-x-3 mb-4 relative">
+          <FunnelIcon className="h-5 w-5 text-indigo-600" />
+          <h4 className="font-semibold text-gray-900">Filter Tasks</h4>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
           <div>
             <input
               type="text"
               placeholder="Search tasks..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-300 shadow-sm transition-all duration-200 hover:bg-white/60"
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
             />
@@ -366,7 +399,7 @@ const TaskBoard = () => {
           
           <div>
             <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-300 shadow-sm transition-all duration-200 hover:bg-white/60"
               value={filters.assignee}
               onChange={(e) => setFilters(prev => ({ ...prev, assignee: e.target.value }))}
             >
@@ -383,7 +416,7 @@ const TaskBoard = () => {
           
           <div>
             <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-300 shadow-sm transition-all duration-200 hover:bg-white/60"
               value={filters.priority}
               onChange={(e) => setFilters(prev => ({ ...prev, priority: e.target.value }))}
             >
@@ -397,8 +430,8 @@ const TaskBoard = () => {
         </div>
         
         {(filters.search || filters.assignee || filters.priority) && (
-          <div className="mt-4 flex items-center justify-between">
-            <span className="text-sm text-gray-500">
+          <div className="mt-4 flex items-center justify-between p-3 bg-white/50 backdrop-blur-sm rounded-xl border border-white/30 shadow-sm relative">
+            <span className="text-sm font-medium text-gray-700">
               {Array.isArray(tasks) ? tasks.filter(task => {
                 if (!task || !task.status) return false;
                 return getTasksByColumn(task.status).includes(task);
@@ -408,6 +441,7 @@ const TaskBoard = () => {
               variant="ghost" 
               size="sm"
               onClick={() => setFilters({ search: '', assignee: '', priority: '' })}
+              className="text-gray-600 hover:text-gray-900 hover:bg-white/50 transition-all duration-200"
             >
               Clear filters
             </Button>
@@ -421,21 +455,46 @@ const TaskBoard = () => {
           const columnTasks = getTasksByColumn(column.id);
           const Icon = column.icon;
           
+          const getColumnGradient = (columnId) => {
+            switch(columnId) {
+              case 'todo': return 'from-gray-100/80 to-slate-100/60';
+              case 'in_progress': return 'from-blue-100/80 to-indigo-100/60';
+              case 'review': return 'from-yellow-100/80 to-orange-100/60';
+              case 'done': return 'from-green-100/80 to-emerald-100/60';
+              default: return 'from-gray-100/80 to-slate-100/60';
+            }
+          };
+          
+          const getIconColor = (columnId) => {
+            switch(columnId) {
+              case 'todo': return 'text-gray-600';
+              case 'in_progress': return 'text-blue-600';
+              case 'review': return 'text-yellow-600';
+              case 'done': return 'text-green-600';
+              default: return 'text-gray-600';
+            }
+          };
+          
           return (
             <div
               key={column.id}
-              className={`${column.bgColor} ${column.borderColor} border-2 border-dashed rounded-lg p-4 min-h-96`}
+              className={`bg-white/60 backdrop-blur-xl rounded-2xl shadow-lg border border-white/30 p-5 min-h-96 transition-all duration-300 hover:shadow-xl hover:bg-white/70 relative overflow-hidden`}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, column.id)}
             >
+              {/* Column background gradient */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${getColumnGradient(column.id)} opacity-30 rounded-2xl`}></div>
+              
               {/* Column Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  <Icon className="h-5 w-5 text-gray-600 mr-2" />
-                  <h4 className="font-medium text-gray-900">{column.title}</h4>
+              <div className="flex items-center justify-between mb-5 relative">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-white/70 backdrop-blur-sm rounded-xl border border-white/30 shadow-sm">
+                    <Icon className={`h-5 w-5 ${getIconColor(column.id)}`} />
+                  </div>
+                  <h4 className="font-semibold text-gray-900">{column.title}</h4>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="bg-white text-gray-600 text-xs font-medium px-2 py-1 rounded-full">
+                  <span className="bg-white/70 backdrop-blur-sm text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full border border-white/30 shadow-sm">
                     {columnTasks.length}
                   </span>
                   <Button
@@ -445,15 +504,16 @@ const TaskBoard = () => {
                       setSelectedColumn(column.id);
                       setShowAddModal(true);
                     }}
-                    className="p-1 h-6 w-6"
+                    className="p-2 h-8 w-8 bg-white/50 backdrop-blur-sm hover:bg-white/70 rounded-xl border border-white/30 shadow-sm transition-all duration-200"
+                    title="Add task to this column"
                   >
-                    <PlusIcon className="h-4 w-4" />
+                    <PlusIcon className="h-4 w-4 text-gray-600" />
                   </Button>
                 </div>
               </div>
 
               {/* Tasks */}
-              <div className="space-y-3">
+              <div className="space-y-3 relative">
                 {Array.isArray(columnTasks) && columnTasks.map((task) => {
                   // Additional safety check for each task
                   if (!task || !task._id) {
@@ -475,8 +535,12 @@ const TaskBoard = () => {
                 })}
                 
                 {(!Array.isArray(columnTasks) || columnTasks.length === 0) && (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500 text-sm">No tasks</p>
+                  <div className="text-center py-12 relative">
+                    <div className="p-4 bg-white/50 backdrop-blur-sm rounded-2xl border border-white/30 shadow-sm mx-auto max-w-xs">
+                      <Icon className={`h-8 w-8 ${getIconColor(column.id)} mx-auto mb-3 opacity-60`} />
+                      <p className="text-gray-600 text-sm font-medium">No tasks in {column.title.toLowerCase()}</p>
+                      <p className="text-gray-500 text-xs mt-1">Drag tasks here or click + to add</p>
+                    </div>
                   </div>
                 )}
               </div>

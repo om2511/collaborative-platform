@@ -270,50 +270,74 @@ const Chat = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <LoadingSpinner size="xl" />
+      <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-8 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-blue-100/50 to-transparent rounded-full -translate-y-10 translate-x-10"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-purple-100/50 to-transparent rounded-full translate-y-8 -translate-x-8"></div>
+        
+        <div className="flex flex-col items-center justify-center h-96 relative">
+          <div className="mb-6 p-4 bg-white/50 backdrop-blur-sm rounded-2xl border border-white/30 shadow-lg">
+            <ChatBubbleLeftRightIcon className="h-12 w-12 text-indigo-600" />
+          </div>
+          <LoadingSpinner size="xl" className="mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading Chat</h3>
+          <p className="text-sm text-gray-600 text-center max-w-md">
+            Connecting to your team's conversation...
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-lg border border-gray-200">
+    <div className="flex flex-col h-full bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-100/30 to-transparent rounded-full -translate-y-8 translate-x-8 -z-10"></div>
+      <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-100/30 to-transparent rounded-full translate-y-6 -translate-x-6 -z-10"></div>
+      
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <div className="flex items-center">
-          <ChatBubbleLeftRightIcon className="h-5 w-5 text-gray-600 mr-2" />
-          <h3 className="text-lg font-medium text-gray-900">Project Chat</h3>
+      <div className="flex items-center justify-between p-6 border-b border-white/30 bg-white/50 backdrop-blur-sm relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-20 h-20 bg-gradient-to-br from-blue-100/50 to-transparent rounded-full -translate-y-5 -translate-x-5"></div>
+        
+        <div className="flex items-center space-x-3 relative">
+          <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl shadow-lg shadow-blue-500/25">
+            <ChatBubbleLeftRightIcon className="h-6 w-6 text-white" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900">Project Chat</h3>
         </div>
         
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-4 relative">
           {onlineUsers.length > 0 && (
-            <div className="flex items-center text-sm text-gray-500">
-              <UsersIcon className="h-4 w-4 mr-1" />
-              <span>{onlineUsers.length} online</span>
+            <div className="flex items-center text-sm bg-white/60 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30 shadow-sm">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
+              <UsersIcon className="h-4 w-4 mr-2 text-gray-600" />
+              <span className="font-medium text-gray-700">{onlineUsers.length} online</span>
             </div>
           )}
           
           {messages.length > 0 && (
             <button
               onClick={handleClearChat}
-              className="text-gray-400 hover:text-red-600 transition-colors p-1 rounded"
+              className="p-2 bg-white/50 backdrop-blur-sm hover:bg-red-100/70 rounded-xl border border-white/30 shadow-sm text-gray-500 hover:text-red-600 transition-all duration-200"
               title="Clear chat history"
             >
-              <TrashIcon className="h-4 w-4" />
+              <TrashIcon className="h-5 w-5" />
             </button>
           )}
         </div>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0 relative">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <ChatBubbleLeftRightIcon className="h-12 w-12 text-gray-300 mb-4" />
-            <h4 className="text-lg font-medium text-gray-500 mb-2">No messages yet</h4>
-            <p className="text-gray-400 max-w-sm">
-              Start a conversation with your team members. Messages will appear here in real-time and persist across page refreshes.
-            </p>
+          <div className="flex flex-col items-center justify-center h-full text-center relative">
+            <div className="p-6 bg-white/50 backdrop-blur-sm rounded-2xl border border-white/30 shadow-lg">
+              <ChatBubbleLeftRightIcon className="h-16 w-16 text-blue-400 mb-4 mx-auto" />
+              <h4 className="text-lg font-semibold text-gray-700 mb-3">No messages yet</h4>
+              <p className="text-gray-500 max-w-sm">
+                Start a conversation with your team members. Messages will appear here in real-time and persist across page refreshes.
+              </p>
+            </div>
           </div>
         ) : (
           <>
@@ -338,25 +362,28 @@ const Chat = () => {
 
       {/* Online Users */}
       {onlineUsers.length > 0 && (
-        <div className="px-4 py-2 border-t border-gray-100">
-          <div className="flex items-center space-x-2">
-            <span className="text-xs text-gray-500">Online:</span>
-            <div className="flex items-center space-x-1">
+        <div className="px-6 py-4 border-t border-white/30 bg-white/50 backdrop-blur-sm">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 text-xs font-medium text-gray-700">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span>Online:</span>
+            </div>
+            <div className="flex items-center space-x-2">
               {onlineUsers.slice(0, 5).map((user, index) => (
                 <div
                   key={user.id}
-                  className="flex items-center"
+                  className="flex items-center group"
                   title={user.name}
                 >
                   {user.avatar ? (
                     <img
                       src={user.avatar}
                       alt={user.name}
-                      className="h-6 w-6 rounded-full"
+                      className="h-8 w-8 rounded-full border-2 border-white shadow-lg hover:scale-110 transition-transform duration-200"
                     />
                   ) : (
-                    <div className="h-6 w-6 rounded-full bg-primary-600 flex items-center justify-center">
-                      <span className="text-xs font-medium text-white">
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center border-2 border-white shadow-lg hover:scale-110 transition-transform duration-200">
+                      <span className="text-xs font-bold text-white">
                         {user.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
@@ -367,9 +394,11 @@ const Chat = () => {
                 </div>
               ))}
               {onlineUsers.length > 5 && (
-                <span className="text-xs text-gray-500">
-                  +{onlineUsers.length - 5} more
-                </span>
+                <div className="bg-white/60 backdrop-blur-sm px-2 py-1 rounded-lg border border-white/30 shadow-sm">
+                  <span className="text-xs font-medium text-gray-600">
+                    +{onlineUsers.length - 5} more
+                  </span>
+                </div>
               )}
             </div>
           </div>
@@ -377,7 +406,7 @@ const Chat = () => {
       )}
 
       {/* Message Input */}
-      <div className="border-t border-gray-200">
+      <div className="border-t border-white/30 bg-white/50 backdrop-blur-sm">
         <ChatInput
           onSendMessage={handleSendMessage}
           onTypingStart={handleTypingStart}

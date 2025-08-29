@@ -174,30 +174,34 @@ const DocumentEditor = ({ document, isCreating, projectId, onDocumentSaved, onCa
   };
 
   return (
-    <div className="h-full flex flex-col" onKeyDown={handleKeyDown}>
+    <div className="h-full flex flex-col relative" onKeyDown={handleKeyDown}>
       {/* Editor Header */}
-      <div className="p-4 border-b border-gray-200 bg-white">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <DocumentTextIcon className="h-5 w-5 text-gray-600" />
-            <h3 className="text-lg font-medium text-gray-900">
+      <div className="p-6 border-b border-white/30 bg-white/50 backdrop-blur-xl relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-purple-100/50 to-transparent rounded-full -translate-y-8 -translate-x-8"></div>
+        
+        <div className="flex items-center justify-between mb-6 relative">
+          <div className="flex items-center space-x-4">
+            <div className="p-2 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl shadow-lg shadow-purple-500/25">
+              <DocumentTextIcon className="h-6 w-6 text-white" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900">
               {isCreating ? 'Create New Document' : 'Edit Document'}
             </h3>
             
             {/* Lock Status */}
             {!isCreating && (
-              <div className="flex items-center text-sm">
+              <div className="flex items-center text-sm bg-white/50 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/30 shadow-sm">
                 {isLocked ? (
-                  <div className="flex items-center text-yellow-600">
-                    <LockClosedIcon className="h-4 w-4 mr-1" />
-                    <span>
+                  <div className="flex items-center text-yellow-700">
+                    <LockClosedIcon className="h-4 w-4 mr-2" />
+                    <span className="font-medium">
                       {lockedBy?._id === user._id ? 'Locked by you' : `Locked by ${lockedBy?.name}`}
                     </span>
                   </div>
                 ) : (
-                  <div className="flex items-center text-green-600">
-                    <LockOpenIcon className="h-4 w-4 mr-1" />
-                    <span>Available for editing</span>
+                  <div className="flex items-center text-green-700">
+                    <LockOpenIcon className="h-4 w-4 mr-2" />
+                    <span className="font-medium">Available for editing</span>
                   </div>
                 )}
               </div>
@@ -205,21 +209,21 @@ const DocumentEditor = ({ document, isCreating, projectId, onDocumentSaved, onCa
 
             {/* Save Status */}
             {!isCreating && (
-              <div className="flex items-center text-sm text-gray-500">
+              <div className="flex items-center text-sm bg-white/50 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/30 shadow-sm">
                 {isSaving ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600 mr-2"></div>
-                    <span>Saving...</span>
+                  <div className="flex items-center text-indigo-700">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600 mr-2"></div>
+                    <span className="font-medium">Saving...</span>
                   </div>
                 ) : hasUnsavedChanges ? (
-                  <div className="flex items-center text-amber-600">
-                    <ExclamationTriangleIcon className="h-4 w-4 mr-1" />
-                    <span>Unsaved changes</span>
+                  <div className="flex items-center text-amber-700">
+                    <ExclamationTriangleIcon className="h-4 w-4 mr-2" />
+                    <span className="font-medium">Unsaved changes</span>
                   </div>
                 ) : lastSaved ? (
-                  <div className="flex items-center text-green-600">
-                    <CheckIcon className="h-4 w-4 mr-1" />
-                    <span>Saved {new Date(lastSaved).toLocaleTimeString()}</span>
+                  <div className="flex items-center text-green-700">
+                    <CheckIcon className="h-4 w-4 mr-2" />
+                    <span className="font-medium">Saved {new Date(lastSaved).toLocaleTimeString()}</span>
                   </div>
                 ) : null}
               </div>
@@ -229,18 +233,22 @@ const DocumentEditor = ({ document, isCreating, projectId, onDocumentSaved, onCa
           <div className="flex items-center space-x-3">
             {/* Auto-save toggle */}
             {!isCreating && (
-              <label className="flex items-center text-sm text-black">
+              <div className="flex items-center text-sm bg-white/50 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30 shadow-sm">
                 <input
                   type="checkbox"
                   checked={autoSaveEnabled}
                   onChange={(e) => setAutoSaveEnabled(e.target.checked)}
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded mr-2"
+                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded mr-2"
                 />
-                Auto-save
-              </label>
+                <label className="font-medium text-gray-700 cursor-pointer">Auto-save</label>
+              </div>
             )}
 
-            <Button variant="outline" onClick={onCancel}>
+            <Button 
+              variant="outline" 
+              onClick={onCancel}
+              className="bg-white/50 border-gray-200/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-200"
+            >
               Cancel
             </Button>
             
@@ -248,6 +256,7 @@ const DocumentEditor = ({ document, isCreating, projectId, onDocumentSaved, onCa
               variant="primary" 
               onClick={handleSave}
               disabled={isSaving || !title.trim() || !content.trim()}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 border-0 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-200"
             >
               {isSaving ? 'Saving...' : (isCreating ? 'Create' : 'Save')}
             </Button>
@@ -255,9 +264,9 @@ const DocumentEditor = ({ document, isCreating, projectId, onDocumentSaved, onCa
         </div>
 
         {/* Document Meta Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Title *
             </label>
             <input
@@ -265,20 +274,20 @@ const DocumentEditor = ({ document, isCreating, projectId, onDocumentSaved, onCa
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Document title..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-300 shadow-sm transition-all duration-200 hover:bg-white/60"
               maxLength={200}
               disabled={isLocked && lockedBy?._id !== user._id}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Type
             </label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-300 shadow-sm transition-all duration-200 hover:bg-white/60"
               disabled={isLocked && lockedBy?._id !== user._id}
             >
               <option value="note">Note</option>
@@ -290,13 +299,13 @@ const DocumentEditor = ({ document, isCreating, projectId, onDocumentSaved, onCa
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Status
             </label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-300 shadow-sm transition-all duration-200 hover:bg-white/60"
               disabled={isLocked && lockedBy?._id !== user._id}
             >
               <option value="draft">Draft</option>
@@ -308,31 +317,43 @@ const DocumentEditor = ({ document, isCreating, projectId, onDocumentSaved, onCa
       </div>
 
       {/* Editor Content */}
-      <div className="flex-1 flex flex-col">
-        <textarea
-          ref={contentRef}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Start writing your document..."
-          className="flex-1 p-4 border-none focus:outline-none resize-none font-mono text-sm leading-relaxed"
-          disabled={isLocked && lockedBy?._id !== user._id}
-        />
+      <div className="flex-1 flex flex-col relative">
+        <div className="flex-1 m-4 bg-white/30 backdrop-blur-sm rounded-xl border border-white/30 shadow-inner relative overflow-hidden">
+          <textarea
+            ref={contentRef}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Start writing your document..."
+            className="w-full h-full p-6 bg-transparent border-none focus:outline-none resize-none font-mono text-sm leading-relaxed text-gray-800 placeholder-gray-500"
+            disabled={isLocked && lockedBy?._id !== user._id}
+          />
+        </div>
       </div>
 
       {/* Editor Footer */}
-      <div className="p-4 border-t border-gray-200 bg-gray-50">
-        <div className="flex items-center justify-between text-sm text-gray-500">
-          <div className="flex items-center space-x-4">
-            <span>{wordCount} words</span>
-            <span>•</span>
-            <span>{characterCount} characters</span>
-            <span>•</span>
-            <span>{getReadingTime()} min read</span>
+      <div className="p-6 border-t border-white/30 bg-white/50 backdrop-blur-xl relative overflow-hidden">
+        <div className="absolute bottom-0 right-0 w-20 h-20 bg-gradient-to-tl from-indigo-100/50 to-transparent rounded-full translate-y-5 translate-x-5"></div>
+        
+        <div className="flex items-center justify-between text-sm relative">
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/30 shadow-sm">
+              <DocumentTextIcon className="h-4 w-4 text-gray-600" />
+              <span className="font-medium text-gray-700">{wordCount} words</span>
+            </div>
+            
+            <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/30 shadow-sm">
+              <span className="font-medium text-gray-700">{characterCount} characters</span>
+            </div>
+            
+            <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/30 shadow-sm">
+              <ClockIcon className="h-4 w-4 text-gray-600" />
+              <span className="font-medium text-gray-700">{getReadingTime()} min read</span>
+            </div>
           </div>
           
-          <div className="flex items-center space-x-2">
-            <ClockIcon className="h-4 w-4" />
-            <span>Press Ctrl+S to save</span>
+          <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30 shadow-sm">
+            <ClockIcon className="h-4 w-4 text-gray-600" />
+            <span className="font-medium text-gray-700">Press Ctrl+S to save</span>
           </div>
         </div>
       </div>
