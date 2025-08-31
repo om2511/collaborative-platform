@@ -46,6 +46,7 @@ const checkProjectPermission = (requiredRole = 'member') => {
       // Check if user is project owner
       if (project.owner.toString() === req.user._id.toString()) {
         req.userProjectRole = 'owner';
+        req.project = project;
         return next();
       }
 
@@ -54,31 +55,39 @@ const checkProjectPermission = (requiredRole = 'member') => {
         member => member.user.toString() === req.user._id.toString()
       );
 
-      if (!teamMember) {
-        return res.status(403).json({
-          success: false,
-          message: 'You are not a member of this project'
-        });
+      if (teamMember) {
+        // Check if user has required role
+        const roleHierarchy = {
+          'viewer': 1,
+          'member': 2,
+          'manager': 3,
+          'owner': 4
+        };
+
+        if (roleHierarchy[teamMember.role] < roleHierarchy[requiredRole]) {
+          return res.status(403).json({
+            success: false,
+            message: `Insufficient permissions. Required role: ${requiredRole}`
+          });
+        }
+
+        req.userProjectRole = teamMember.role;
+        req.project = project;
+        return next();
       }
 
-      // Check if user has required role
-      const roleHierarchy = {
-        'viewer': 1,
-        'member': 2,
-        'manager': 3,
-        'owner': 4
-      };
-
-      if (roleHierarchy[teamMember.role] < roleHierarchy[requiredRole]) {
-        return res.status(403).json({
-          success: false,
-          message: `Insufficient permissions. Required role: ${requiredRole}`
-        });
+      // If user is not a team member, check if project allows guest access
+      // and the required role is 'viewer' (for read-only operations like chat viewing)
+      if (project.settings.isPublic && project.settings.allowGuestAccess && requiredRole === 'viewer') {
+        req.userProjectRole = 'guest';
+        req.project = project;
+        return next();
       }
 
-      req.userProjectRole = teamMember.role;
-      req.project = project;
-      next();
+      return res.status(403).json({
+        success: false,
+        message: 'You are not a member of this project'
+      });
     } catch (error) {
       console.error('Project permission check error:', error);
       res.status(500).json({

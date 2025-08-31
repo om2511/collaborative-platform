@@ -204,16 +204,24 @@ const CollaborativeWhiteboard = ({ projectId, whiteboardId, isReadOnly = false }
             whiteboardData = whiteboards[0];
             setCurrentWhiteboardId(whiteboardData._id);
           } else {
-            // Create a new whiteboard for the project
-            const createResponse = await whiteboardService.createWhiteboard(projectId, {
-              name: 'Project Whiteboard',
-              canvas: {
-                objects: [],
-                background: { color: '#ffffff' }
-              }
-            });
-            whiteboardData = createResponse.data.whiteboard;
-            setCurrentWhiteboardId(whiteboardData._id);
+            // Try to create a new whiteboard for the project
+            try {
+              const createResponse = await whiteboardService.createWhiteboard(projectId, {
+                name: 'Project Whiteboard',
+                canvas: {
+                  objects: [],
+                  background: { color: '#ffffff' }
+                }
+              });
+              whiteboardData = createResponse.data.whiteboard;
+              setCurrentWhiteboardId(whiteboardData._id);
+            } catch (createError) {
+              // If creation fails (e.g., guest user), work in offline mode
+              console.log('Could not create whiteboard, using offline mode:', createError);
+              setIsOffline(true);
+              setHasTriedServer(true);
+              return;
+            }
           }
           setIsOffline(false);
           setHasTriedServer(true);
@@ -544,10 +552,16 @@ const CollaborativeWhiteboard = ({ projectId, whiteboardId, isReadOnly = false }
         }
 
         // Clear on backend using dedicated clear endpoint
-        await tryServerOperation(
-          () => whiteboardService.clearWhiteboard(currentWhiteboardId),
-          null // fallback - do nothing if offline
-        );
+        try {
+          await whiteboardService.clearWhiteboard(currentWhiteboardId);
+        } catch (error) {
+          if (error.response?.status === 403) {
+            toast.error('You don\'t have permission to clear the whiteboard');
+          } else if (!isOffline) {
+            toast.error('Failed to clear whiteboard on server');
+          }
+          // Don't throw - allow local clear to proceed
+        }
         
         toast.success('Whiteboard cleared');
       } catch (error) {

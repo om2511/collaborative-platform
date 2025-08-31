@@ -46,7 +46,7 @@ const TeamAnalytics = ({ data }) => {
       completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
       avgTime: avgTime > 0 ? Math.round(avgTime / (1000 * 60 * 60 * 24)) : 0
     };
-  }).filter(member => member.name !== 'Unknown User' || member.total > 0); // Filter out invalid entries
+  }).filter(member => member.name !== 'Unknown User'); // Only filter out truly unknown users
 
   const projectStatusData = projectStats.reduce((acc, project) => {
     const status = project.status || 'active';
@@ -66,6 +66,7 @@ const TeamAnalytics = ({ data }) => {
   const totalCompleted = teamPerformance.reduce((sum, member) => sum + safeNumber(member.completedTasks, 0), 0);
   const teamCompletionRate = totalTasks > 0 ? Math.round((totalCompleted / totalTasks) * 100) : 0;
   const activeMembers = teamPerformance.filter(member => safeNumber(member.totalTasks, 0) > 0).length;
+  const totalMembers = teamPerformance.length; // Count all members, not just those with tasks
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -79,7 +80,7 @@ const TeamAnalytics = ({ data }) => {
             <div className="ml-3 sm:ml-4 min-w-0 flex-1">
               <p className="text-xs sm:text-sm font-medium text-gray-500">Team Members</p>
               <p className="text-lg sm:text-2xl font-semibold text-gray-900">
-                {safeNumber(teamPerformance.length, 0)}
+                {safeNumber(totalMembers, 0)}
               </p>
             </div>
           </div>

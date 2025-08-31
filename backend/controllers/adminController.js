@@ -208,7 +208,7 @@ const updateUserRole = async (req, res) => {
     const { role } = req.body;
     
     // Validate role
-    const validRoles = ['user', 'admin', 'manager'];
+    const validRoles = ['admin', 'project_manager', 'team_member', 'guest'];
     if (!validRoles.includes(role)) {
       return res.status(400).json({
         success: false,
@@ -234,8 +234,6 @@ const updateUserRole = async (req, res) => {
     
     const oldRole = user.role;
     user.role = role;
-    user.lastModifiedBy = req.user._id;
-    user.roleChangedAt = new Date();
     
     await user.save();
     

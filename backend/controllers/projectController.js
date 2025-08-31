@@ -116,7 +116,14 @@ const createProject = async (req, res) => {
         user: req.user._id,
         role: 'owner',
         joinedAt: new Date()
-      }]
+      }],
+      // Set default settings that are more sharing-friendly
+      settings: {
+        isPublic: req.body.settings?.isPublic ?? true,
+        allowGuestAccess: req.body.settings?.allowGuestAccess ?? true,
+        notifications: req.body.settings?.notifications ?? true,
+        ...req.body.settings
+      }
     };
 
     const project = await Project.create(projectData);
@@ -271,6 +278,22 @@ const addTeamMember = async (req, res) => {
 
     await project.populate('team.user', 'name email avatar');
 
+    // Get the newly added member for socket emission
+    const newMember = project.team[project.team.length - 1];
+
+    // Emit socket event for real-time updates
+    const io = req.app.get('socketio');
+    if (io) {
+      io.to(`project_${project._id}`).emit('team_member_added', {
+        projectId: project._id,
+        newMember: {
+          user: newMember.user,
+          role: newMember.role,
+          joinedAt: newMember.joinedAt
+        }
+      });
+    }
+
     res.json({
       success: true,
       message: 'Team member added successfully',
@@ -317,6 +340,9 @@ const removeTeamMember = async (req, res) => {
       });
     }
 
+    // Get user info before removing for socket emission
+    const userToRemove = await User.findById(userId).select('name');
+
     // Remove team member
     project.team = project.team.filter(member => 
       member.user.toString() !== userId
@@ -328,6 +354,16 @@ const removeTeamMember = async (req, res) => {
     await User.findByIdAndUpdate(userId, {
       $pull: { projects: project._id }
     });
+
+    // Emit socket event for real-time updates
+    const io = req.app.get('socketio');
+    if (io && userToRemove) {
+      io.to(`project_${project._id}`).emit('team_member_removed', {
+        projectId: project._id,
+        removedUserId: userId,
+        removedUserName: userToRemove.name
+      });
+    }
 
     res.json({
       success: true,
@@ -343,11 +379,171 @@ const removeTeamMember = async (req, res) => {
   }
 };
 
+// @desc    Join project (for public projects with guest access)
+// @route   POST /api/projects/:id/join
+// @access  Private
+const joinProject = async (req, res) => {
+  try {
+    console.log('Join project request for project ID:', req.params.id);
+    console.log('User ID:', req.user._id);
+    
+    const project = await Project.findById(req.params.id);
+
+    if (!project) {
+      console.log('Project not found');
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found'
+      });
+    }
+
+    console.log('Project settings:', project.settings);
+    console.log('Project owner:', project.owner);
+    console.log('Current team members:', project.team.map(m => m.user.toString()));
+
+    // Check if project allows joining - handle missing settings
+    const isPublic = project.settings?.isPublic ?? false;
+    const allowGuestAccess = project.settings?.allowGuestAccess ?? false;
+    
+    console.log('isPublic:', isPublic, 'allowGuestAccess:', allowGuestAccess);
+
+    if (!isPublic || !allowGuestAccess) {
+      console.log('Project does not allow public access - isPublic:', isPublic, 'allowGuestAccess:', allowGuestAccess);
+      return res.status(403).json({
+        success: false,
+        message: 'This project does not allow public access'
+      });
+    }
+
+    // Check if user is already in team
+    const existingMember = project.team.find(member => 
+      member.user.toString() === req.user._id.toString()
+    );
+    
+    if (existingMember) {
+      console.log('User is already a member');
+      return res.status(400).json({
+        success: false,
+        message: 'You are already a member of this project'
+      });
+    }
+
+    // Check if user is the owner
+    if (project.owner.toString() === req.user._id.toString()) {
+      console.log('User is the owner');
+      return res.status(400).json({
+        success: false,
+        message: 'You are the owner of this project'
+      });
+    }
+
+    // Add user to team as viewer by default
+    project.team.push({
+      user: req.user._id,
+      role: 'viewer',
+      joinedAt: new Date()
+    });
+
+    await project.save();
+
+    // Add project to user's projects
+    await User.findByIdAndUpdate(req.user._id, {
+      $addToSet: { projects: project._id }  // Use $addToSet to avoid duplicates
+    });
+
+    // Populate the new member info
+    await project.populate('team.user', 'name email avatar');
+
+    // Get the newly added member
+    const newMember = project.team[project.team.length - 1];
+
+    // Emit socket event for real-time updates
+    const io = req.app.get('socketio');
+    if (io) {
+      io.to(`project_${project._id}`).emit('team_member_added', {
+        projectId: project._id,
+        newMember: {
+          user: newMember.user,
+          role: newMember.role,
+          joinedAt: newMember.joinedAt
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Successfully joined the project',
+      data: { 
+        project,
+        newMember: {
+          user: newMember.user,
+          role: newMember.role,
+          joinedAt: newMember.joinedAt
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Join project error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error joining project',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Update project settings (temporary helper)
+// @route   PATCH /api/projects/:id/settings
+// @access  Private
+const updateProjectSettings = async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found'
+      });
+    }
+
+    // Only owner can update settings
+    if (project.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only project owner can update settings'
+      });
+    }
+
+    // Update settings
+    project.settings = {
+      ...project.settings,
+      ...req.body
+    };
+
+    await project.save();
+
+    res.json({
+      success: true,
+      message: 'Project settings updated successfully',
+      data: { settings: project.settings }
+    });
+  } catch (error) {
+    console.error('Update project settings error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating project settings',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getProjects,
   getProject,
   createProject,
   updateProject,
   addTeamMember,
-  removeTeamMember
+  removeTeamMember,
+  joinProject,
+  updateProjectSettings
 };

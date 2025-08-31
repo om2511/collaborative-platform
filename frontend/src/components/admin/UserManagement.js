@@ -146,9 +146,11 @@ const UserManagement = ({ systemStats, onStatsUpdate }) => {
     switch (role) {
       case 'admin':
         return 'bg-red-100 text-red-800';
-      case 'manager':
+      case 'project_manager':
         return 'bg-blue-100 text-blue-800';
-      case 'user':
+      case 'team_member':
+        return 'bg-green-100 text-green-800';
+      case 'guest':
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -202,8 +204,9 @@ const UserManagement = ({ systemStats, onStatsUpdate }) => {
           >
             <option value="all">All Roles</option>
             <option value="admin">Admin</option>
-            <option value="manager">Manager</option>
-            <option value="user">User</option>
+            <option value="project_manager">Project Manager</option>
+            <option value="team_member">Team Member</option>
+            <option value="guest">Guest</option>
           </select>
         </div>
       </div>
@@ -418,8 +421,9 @@ const UserManagement = ({ systemStats, onStatsUpdate }) => {
                     disabled={actionLoading}
                     className="px-3 py-2 text-sm bg-white/70 backdrop-blur-sm border border-white/30 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   >
-                    <option value="user">User</option>
-                    <option value="manager">Manager</option>
+                    <option value="team_member">Team Member</option>
+                    <option value="project_manager">Project Manager</option>
+                    <option value="guest">Guest</option>
                     <option value="admin">Admin</option>
                   </select>
                 </div>

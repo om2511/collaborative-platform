@@ -145,6 +145,9 @@ export const projectService = {
   addTeamMember: (projectId, userId, role = 'member') => 
     api.post(`/projects/${projectId}/team`, { userId, role }),
 
+  // Join project
+  joinProject: (projectId) => api.post(`/projects/${projectId}/join`),
+
   // Remove team member
   removeTeamMember: (projectId, userId) => 
     api.delete(`/projects/${projectId}/team/${userId}`)

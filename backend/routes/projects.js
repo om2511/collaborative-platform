@@ -5,7 +5,9 @@ const {
   createProject,
   updateProject,
   addTeamMember,
-  removeTeamMember
+  removeTeamMember,
+  joinProject,
+  updateProjectSettings
 } = require('../controllers/projectController');
 const { protect } = require('../middleware/authMiddleware');
 const { projectValidation } = require('../utils/validators');
@@ -25,6 +27,12 @@ router.route('/:id')
 
 router.route('/:id/team')
   .post(addTeamMember);
+
+router.route('/:id/join')
+  .post(joinProject);
+
+router.route('/:id/settings')
+  .patch(updateProjectSettings);
 
 router.route('/:id/team/:userId')
   .delete(removeTeamMember);

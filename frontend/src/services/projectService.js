@@ -42,5 +42,11 @@ export const projectService = {
   removeTeamMember: async (projectId, userId) => {
     const response = await api.delete(`/projects/${projectId}/team/${userId}`);
     return response.data;
+  },
+
+  // Join project (for public projects)
+  joinProject: async (projectId) => {
+    const response = await api.post(`/projects/${projectId}/join`);
+    return response.data;
   }
 };

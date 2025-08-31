@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useSocket } from '../../context/SocketContext';
+import { useAuth } from '../../context/AuthContext';
 import { projectService } from '../../services/projectService';
 import LoadingSpinner from '../common/LoadingSpinner';
 import Button from '../common/Button';
@@ -35,7 +36,8 @@ import {
 const ProjectDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { joinProject, leaveProject, onlineUsers } = useSocket();
+  const { joinProject, leaveProject, onlineUsers, socket } = useSocket();
+  const { user } = useAuth();
   
   const [project, setProject] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,6 +45,7 @@ const ProjectDetail = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [autoJoining, setAutoJoining] = useState(false);
   const [editForm, setEditForm] = useState({
     title: '',
     description: '',
@@ -67,6 +70,39 @@ const ProjectDetail = () => {
     };
   }, [id]);
 
+  // Listen for team member updates via socket
+  useEffect(() => {
+    if (socket && id) {
+      const handleTeamMemberAdded = (data) => {
+        if (data.projectId === id) {
+          setProject(prev => prev ? {
+            ...prev,
+            team: [...prev.team, data.newMember]
+          } : prev);
+          toast.success(`${data.newMember.user.name} joined the project`);
+        }
+      };
+
+      const handleTeamMemberRemoved = (data) => {
+        if (data.projectId === id) {
+          setProject(prev => prev ? {
+            ...prev,
+            team: prev.team.filter(member => member.user._id !== data.removedUserId)
+          } : prev);
+          toast(`${data.removedUserName} left the project`);
+        }
+      };
+
+      socket.on('team_member_added', handleTeamMemberAdded);
+      socket.on('team_member_removed', handleTeamMemberRemoved);
+
+      return () => {
+        socket.off('team_member_added', handleTeamMemberAdded);
+        socket.off('team_member_removed', handleTeamMemberRemoved);
+      };
+    }
+  }, [socket, id]);
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -84,6 +120,44 @@ const ProjectDetail = () => {
       setIsLoading(true);
       const response = await projectService.getProject(id);
       const projectData = response.data.project;
+      
+      // Check if current user is a team member
+      console.log('Current user:', user);
+      console.log('Project team:', projectData.team);
+      console.log('Project owner:', projectData.owner);
+      
+      const isTeamMember = projectData.team.some(member => {
+        const memberId = member.user._id || member.user.id;
+        const currentUserId = user?.id || user?._id;
+        console.log('Comparing member.user._id:', member.user._id, 'with user.id:', user?.id, 'and user._id:', user?._id);
+        return String(memberId) === String(currentUserId);
+      });
+      const isOwner = String(projectData.owner._id || projectData.owner.id) === String(user?.id || user?._id);
+      
+      console.log('isTeamMember:', isTeamMember, 'isOwner:', isOwner);
+      console.log('Project settings:', projectData.settings);
+      
+      // If user is not a team member and not the owner, but project allows guest access,
+      // automatically join the project
+      if (!isTeamMember && !isOwner && projectData.settings?.isPublic && projectData.settings?.allowGuestAccess) {
+        try {
+          setAutoJoining(true);
+          const joinResponse = await projectService.joinProject(id);
+          if (joinResponse.success) {
+            // Update the project data with the new team member (current user)
+            projectData.team.push(joinResponse.data.newMember);
+            toast.success('Successfully joined the project!');
+          }
+        } catch (joinError) {
+          // If joining fails, it's okay - user can still view as guest
+          console.error('Auto-join failed:', joinError);
+          console.error('Error response:', joinError.response?.data);
+          // Don't show error toast for auto-join failures since it's optional
+        } finally {
+          setAutoJoining(false);
+        }
+      }
+      
       setProject(projectData);
       
       // Populate edit form with current project data
@@ -173,6 +247,28 @@ const ProjectDetail = () => {
       });
     } else {
       handleCopyLink();
+    }
+  };
+
+  // Handle manual join project
+  const handleJoinProject = async () => {
+    try {
+      setAutoJoining(true);
+      const response = await projectService.joinProject(id);
+      if (response.success) {
+        // Update the project data with the new team member (current user)
+        setProject(prev => ({
+          ...prev,
+          team: [...prev.team, response.data.newMember]
+        }));
+        toast.success('Successfully joined the project!');
+      }
+    } catch (error) {
+      console.error('Manual join failed:', error);
+      console.error('Error response:', error.response?.data);
+      toast.error(error.response?.data?.message || 'Failed to join project');
+    } finally {
+      setAutoJoining(false);
     }
   };
 
@@ -274,6 +370,26 @@ const ProjectDetail = () => {
                   </div>
                 )}
 
+                {/* Join Project Button - Show if user is not a team member and project allows guest access */}
+                {project && user && !project.team.some(member => 
+                  String(member.user._id || member.user.id) === String(user.id || user._id)
+                ) && 
+                 String(project.owner._id || project.owner.id) !== String(user.id || user._id) && 
+                 project.settings?.isPublic && 
+                 project.settings?.allowGuestAccess && (
+                  <Button 
+                    variant="primary"
+                    size="sm"
+                    icon={UserPlusIcon}
+                    iconPosition="left"
+                    onClick={handleJoinProject}
+                    loading={autoJoining}
+                    className="hidden sm:flex bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg"
+                  >
+                    Join Project
+                  </Button>
+                )}
+
                 <Button 
                   variant="primary"
                   size="sm"
@@ -284,6 +400,24 @@ const ProjectDetail = () => {
                 >
                   Edit
                 </Button>
+                
+                {/* Join Project Button Mobile - Show if user is not a team member and project allows guest access */}
+                {project && user && !project.team.some(member => 
+                  String(member.user._id || member.user.id) === String(user.id || user._id)
+                ) && 
+                 String(project.owner._id || project.owner.id) !== String(user.id || user._id) && 
+                 project.settings?.isPublic && 
+                 project.settings?.allowGuestAccess && (
+                  <Button 
+                    variant="primary"
+                    size="sm"
+                    icon={UserPlusIcon}
+                    iconPosition="left"
+                    onClick={handleJoinProject}
+                    loading={autoJoining}
+                    className="sm:hidden flex bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg"
+                  />
+                )}
                 
                 <Button 
                   variant="primary"

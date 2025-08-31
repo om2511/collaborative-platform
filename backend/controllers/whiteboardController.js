@@ -431,6 +431,14 @@ const clearWhiteboard = async (req, res) => {
       });
     }
 
+    // Only allow team members (not guests) to clear whiteboards
+    if (req.userProjectRole === 'guest') {
+      return res.status(403).json({
+        success: false,
+        message: 'Guests cannot clear whiteboards'
+      });
+    }
+
     // Clear all objects from canvas
     whiteboard.canvas.objects = [];
     await whiteboard.save();

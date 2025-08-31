@@ -212,12 +212,58 @@ const getCurrentUserTeamAnalytics = async (req, res) => {
       ]
     }).populate('team.user', 'name email avatar');
 
-    // Get team performance across all projects
-    const teamPerformance = await Task.aggregate([
+    if (userProjects.length === 0) {
+      return res.json({
+        success: true,
+        data: {
+          teamPerformance: [],
+          projectStats: [],
+          totalProjects: 0,
+          activeProjects: 0
+        }
+      });
+    }
+
+    const projectIds = userProjects.map(p => p._id);
+
+    // Get all team members from all projects
+    const allTeamMembers = new Map();
+    
+    // First, populate the map with all users from all projects
+    for (const project of userProjects) {
+      // Add owner
+      if (project.owner) {
+        const ownerId = project.owner._id || project.owner;
+        if (!allTeamMembers.has(ownerId.toString())) {
+          // We need to fetch the owner's details if not populated
+          const ownerUser = await User.findById(ownerId).select('name email');
+          if (ownerUser) {
+            allTeamMembers.set(ownerId.toString(), {
+              _id: ownerId,
+              name: ownerUser.name,
+              email: ownerUser.email
+            });
+          }
+        }
+      }
+      
+      // Add team members
+      project.team.forEach(member => {
+        if (member.user && member.user._id) {
+          allTeamMembers.set(member.user._id.toString(), {
+            _id: member.user._id,
+            name: member.user.name,
+            email: member.user.email
+          });
+        }
+      });
+    }
+
+    // Get team performance across all projects - using a more flexible approach
+    let teamPerformance = await Task.aggregate([
       { 
         $match: { 
-          project: { $in: userProjects.map(p => p._id) },
-          assignee: { $ne: null } // Filter out tasks without assignees
+          project: { $in: projectIds }
         } 
       },
       {
@@ -255,13 +301,33 @@ const getCurrentUserTeamAnalytics = async (req, res) => {
       }
     ]);
 
+    // Filter out entries where assignee is null and add missing team members
+    teamPerformance = teamPerformance.filter(member => member._id !== null);
+
+    // Add team members who don't have tasks assigned yet
+    allTeamMembers.forEach((memberInfo, memberId) => {
+      const existingPerformance = teamPerformance.find(perf => 
+        perf._id && perf._id.toString() === memberId
+      );
+      
+      if (!existingPerformance) {
+        teamPerformance.push({
+          _id: memberInfo._id,
+          completedTasks: 0,
+          totalTasks: 0,
+          avgCompletionTime: 0,
+          user: memberInfo
+        });
+      }
+    });
+
     // Get project statistics
     const projectStats = userProjects.map(project => ({
       id: project._id,
       name: project.title,
-      progress: project.progress,
-      teamSize: project.team.length,
-      status: project.status
+      progress: project.progress || 0,
+      teamSize: project.team.length, // team array already includes owner
+      status: project.status || 'active'
     }));
 
     // Sanitize team performance data

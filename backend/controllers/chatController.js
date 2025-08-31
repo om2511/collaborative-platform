@@ -86,11 +86,13 @@ const sendMessage = async (req, res) => {
     }
 
     // Check if user has access to project
-    const hasAccess = project.team.some(member => 
+    const isOwner = project.owner.toString() === req.user._id.toString();
+    const isTeamMember = project.team.some(member => 
       member.user.toString() === req.user._id.toString()
-    ) || project.owner.toString() === req.user._id.toString();
+    );
+    const isGuestAllowed = project.settings.isPublic && project.settings.allowGuestAccess;
 
-    if (!hasAccess) {
+    if (!isOwner && !isTeamMember && !isGuestAllowed) {
       return res.status(403).json({
         success: false,
         message: 'Access denied to this project'
@@ -323,12 +325,13 @@ const clearProjectMessages = async (req, res) => {
       });
     }
 
-    // Check if user has access to project (owner or member)
-    const hasAccess = project.team.some(member => 
+    // Check if user has access to project (owner or member, not guests for clearing messages)
+    const isOwner = project.owner.toString() === req.user._id.toString();
+    const isTeamMember = project.team.some(member => 
       member.user.toString() === req.user._id.toString()
-    ) || project.owner.toString() === req.user._id.toString();
+    );
 
-    if (!hasAccess) {
+    if (!isOwner && !isTeamMember) {
       return res.status(403).json({
         success: false,
         message: 'Access denied to this project'
