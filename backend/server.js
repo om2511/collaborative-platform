@@ -30,13 +30,14 @@ connectDB().catch(err => console.error('Initial DB connection failed:', err.mess
 
 const app = express();
 const server = createServer(app);
+const allowedOrigins = Array.from(
+  new Set([...(config.corsOrigin || []), ...(config.allowedOrigins || [])].filter(Boolean))
+);
 
 // Socket.IO setup
 const io = new Server(server, {
   cors: {
-    origin: process.env.NODE_ENV === 'production' ? 
-      config.corsOrigin || config.allowedOrigins || ['http://localhost:3000'] :
-      true, // Allow all origins in development
+    origin: process.env.NODE_ENV === 'production' ? allowedOrigins : true,
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -59,22 +60,19 @@ app.use('/api/', limiter);
 // CORS - Explicit configuration for development
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // List of allowed origins
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:5001', 
-      'http://localhost:5173',
-      'http://localhost:3001'
-    ];
-    
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+    if (!origin) {
+      return callback(null, true);
     }
+
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -86,27 +84,23 @@ app.use(cors(corsOptions));
 
 // Manual CORS headers as backup
 app.use((req, res, next) => {
-  const allowedOrigins = [
-    'http://localhost:3000',
-    'http://localhost:5001',
-    'http://localhost:5173', 
-    'http://localhost:3001'
-  ];
-  
   const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+
+  if (process.env.NODE_ENV !== 'production') {
     res.header('Access-Control-Allow-Origin', origin || '*');
+  } else if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
   }
-  
+
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Credentials', 'true');
-  
+
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-  } else {
-    next();
+    return res.status(200).end();
   }
+
+  return next();
 });
 
 // CORS middleware
@@ -131,9 +125,9 @@ io.use(async (socket, next) => {
         return next();
       }
     }
-    next(new Error('Authentication error'));
+    return next(new Error('Authentication error'));
   } catch (error) {
-    next(new Error('Authentication error'));
+    return next(new Error('Authentication error'));
   }
 });
 
@@ -192,7 +186,7 @@ io.on('connection', (socket) => {
 
   // Handle chat messages
   socket.on('send_message', (data) => {
-    const { projectId, content, type, messageId, senderId } = data;
+    const { projectId, content, type, messageId } = data;
     const messageData = {
       id: messageId || Date.now(),
       content,
@@ -276,7 +270,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Error handling middleware
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   console.error('Error:', err.stack);
   
   res.status(err.status || 500).json({
@@ -301,7 +295,7 @@ server.listen(PORT, () => {
 });
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (err, promise) => {
+process.on('unhandledRejection', (err, _promise) => {
   console.log('Unhandled Rejection:', err.message);
   server.close(() => {
     process.exit(1);
