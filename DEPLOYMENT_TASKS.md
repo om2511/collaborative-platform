@@ -43,3 +43,4 @@ Analyze the complete project, prepare it for deployment, deploy the frontend to 
 - Added `vercel.json` to build and deploy `frontend/` on Vercel with SPA rewrites.
 - Added `render.yaml` to deploy `backend/` as a Render web service.
 - Updated `backend/server.js` to honor production origins from environment variables.
+- Updated `vercel.json` build command to `CI=false` because Create React App on Vercel treats warnings as build-breaking in CI mode and this frontend currently has many warnings.
